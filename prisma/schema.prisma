@@ -6,9 +6,8 @@ generator client {
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = "file:./db.sqlite"
-    // url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 model Example {
@@ -50,6 +49,10 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+
+    tasks Task[]
+    habits Habit[]
+    completedHabits CompletedHabit[]
 }
 
 model VerificationToken {
@@ -58,4 +61,68 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+
+model Task {
+  id String @id @default(cuid())
+
+  title     String
+  timeStart DateTime
+  timeEnd   DateTime
+
+  user   User @relation(fields: [userId], references: [id])
+  userId String
+
+  tag   Tag? @relation(fields: [tagId], references: [id])
+  tagId String
+
+
+  @@index([timeStart, timeEnd])
+  @@map("tasks")
+}
+
+
+
+model Tag {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  colorHexValue String @default("#5F5F5F")
+
+  tasks Task[]
+
+  @@map("tags")
+}
+
+model Habit {
+  id String @id @default(cuid())
+
+  name String
+  habitDays Boolean[]
+  remindTime String?
+  remindDays Boolean[]
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
+
+  completedHabits CompletedHabit[]
+
+  @@unique([name, userId])
+  @@map("habits")
+}
+
+model CompletedHabit {
+  id String @id @default(cuid())
+  dateCompleted DateTime @default(now())
+
+  habit Habit @relation(fields: [habitId], references: [id])
+  habitId String
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
+
+  @@index([dateCompleted])
+  @@map("completedHabits")
 }

@@ -21,6 +21,23 @@ export const authOptions: NextAuthOptions = {
       issuer: process.env.AUTH0_ISSUER,
     })
   ],
+  callbacks: {
+    async jwt({token, user}) {
+      user && (token.user = user)
+      return token
+    },
+    async session({session, token, user}) {
+      session = {
+        ...session,
+        user: {
+          // @ts-ignore
+          id: user.id, 
+          ...session.user
+        }
+      }
+      return session
+    }
+  }
 };
 
 export default NextAuth(authOptions);
