@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server"
-import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay } from "date-fns"
+import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday } from "date-fns"
 import { z } from "zod"
 import { Day } from "../../../types/types"
 import { createRouter } from "./context"
@@ -187,17 +187,45 @@ export const taskRouter = createRouter()
     })
     .mutation("do-habit", {
         input: z.object({
-
+            habitId: z.string().cuid()
         }),
         async resolve({input, ctx }) {
-            
+            const completedHabit = await ctx.prisma.completedHabit.create({
+                data: {
+                    habit: {
+                        connect: {
+                            id: input.habitId
+                        }
+                    },
+                    user: {
+                        connect: {
+                            id: ctx.session?.user.id
+                        }
+                    }
+                }
+            })
+
+            return completedHabit
         }
     })
     .mutation("undo-habit", {
         input: z.object({
-
+            habitId: z.string().cuid()
         }),
         async resolve({input, ctx }) {
-            
+            const startOfDay = startOfToday()
+            const endOfDay = endOfToday()
+    
+            await ctx.prisma.completedHabit.deleteMany({
+                where: {
+                    habitId: input.habitId,
+                    dateCompleted: {
+                        gte: startOfDay,
+                        lt: endOfDay
+                    }
+                }
+            })
+        }
+    
         }
     })
