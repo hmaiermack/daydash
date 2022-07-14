@@ -175,10 +175,14 @@ export const taskRouter = createRouter()
     })
     .mutation("delete-habit", {
         input: z.object({
-
+            habitId: z.string().cuid()
         }),
         async resolve({input, ctx }) {
-            
+            await ctx.prisma.habit.delete({
+                where: {
+                    id: input.habitId
+                }
+            })
         }
     })
     .mutation("do-habit", {
