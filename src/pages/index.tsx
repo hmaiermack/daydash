@@ -1,9 +1,21 @@
+import { addDays, addMinutes } from "date-fns";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useState } from "react";
 import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
-  const hello = trpc.useQuery(["tasks.tasks"]);
+  const [date, setDate] = useState(new Date)
+  const getTasks = trpc.useQuery(["tasks.tasks", {date}]);
+  const newTask = trpc.useMutation("tasks.new-task")
+
+  const handleClick = async () => {
+    newTask.mutate({
+      title: "First Task",
+      timeStart: addDays(date, 1),
+      timeEnd: addMinutes(addDays(date, 1), 5),
+    })
+  }
 
   return (
     <>
@@ -14,6 +26,7 @@ const Home: NextPage = () => {
       </Head>
 
       <div className="w-screen min-h-screen flex flex-col justify-center items-center p-4 overflow-y-scroll">
+        <button onClick={handleClick}>Add Tasks</button>
         <h2 className="text-[3rem] lg:text-[5rem] md:text-[5rem] font-extrabold text-gray-700">
           Create <span className="text-purple-300">T3</span> App
         </h2>

@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
-import { string, z } from "zod";
+import { z } from "zod";
 import { createRouter } from "./context";
-import { endOfDay, format, nextSaturday, startOfWeek } from 'date-fns'
-import { Tag, Task } from "@prisma/client";
+import { endOfDay, format, nextSaturday, previousSunday, startOfDay } from 'date-fns'
+import { Task } from "@prisma/client";
 
 export const taskRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
@@ -13,11 +13,11 @@ export const taskRouter = createRouter()
     })
     .query("tasks", {
         input: z.object({
-            startDay: z.date()
+            date: z.date()
         }),
         async resolve({input, ctx }) {
-            const weekStart = input.startDay
-            const weekEnd = endOfDay(nextSaturday(input.startDay))
+            const weekStart = startOfDay(previousSunday(input.date))
+            const weekEnd = endOfDay(nextSaturday(input.date))
             const tasks = await ctx.prisma.task.findMany({
                 where: {
                     userId: ctx.session?.user.id,
@@ -40,17 +40,19 @@ export const taskRouter = createRouter()
                 [key: string]: Task[] | [] | Date
             }
 
-            const taskMap: ITaskMap = {
+            const taskObjectByDate: ITaskMap = {}
+            const taskMap = {
                 weekStart,
                 weekEnd,
+                taskObjectByDate
               };
+            
 
               tasks.forEach((task) => {
                 const day = format(task.timeStart, 'eeee');
-                if (!taskMap[day]) taskMap[day] = [];
-                (taskMap[`${day}`]as unknown as Task[]).push(task);
+                if (!taskObjectByDate[day]) taskObjectByDate[day] = [];
+                (taskObjectByDate[`${day}`]as unknown as Task[]).push(task);
               });
-              console.log(taskMap)
               return taskMap;
         }
     })
@@ -65,7 +67,9 @@ export const taskRouter = createRouter()
             }).optional()
         }),
         async resolve ({input, ctx}) {
+            console.log({input})
             if (input.tag) {
+                console.log("inside new task with tag")
                 const task = await ctx.prisma.task.create({
                     data: {
                         user: {
@@ -95,6 +99,8 @@ export const taskRouter = createRouter()
 
                 return task
             }   
+
+            console.log("new task without tag")
             
             const task = await ctx.prisma.task.create({
                 data: {

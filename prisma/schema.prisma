@@ -75,7 +75,7 @@ model Task {
   userId String
 
   tag   Tag? @relation(fields: [tagId], references: [id])
-  tagId String
+  tagId String?
 
 
   @@index([timeStart, timeEnd])

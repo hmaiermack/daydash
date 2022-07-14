@@ -15,7 +15,6 @@ export const createContext = async (
   const session =
     req && res && (await getServerSession(req, res, nextAuthOptions));
 
-    console.log(session)
   return {
     req,
     res,
