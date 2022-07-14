@@ -98,10 +98,45 @@ export const taskRouter = createRouter()
     })
     .mutation("new-habit", {
         input: z.object({
-
+            name: z.string().min(1, {message: "Name can't be empty"}),
+            habitDays: z.array(z.boolean()).length(7),
+            remindTime: z.string().optional(),
+            remindDays: z.array(z.boolean()).optional()
         }),
         async resolve({input, ctx }) {
-            
+            if(input.remindTime) {
+                const habit = await ctx.prisma.habit.create({
+                    data: {
+                        user: {
+                            connect: {
+                                id: ctx.session?.user.id
+                            }
+                        },
+                        name: input.name,
+                        habitDays: input.habitDays,
+                        remindTime: input.remindTime,
+                        remindDays: input.remindDays
+                    }
+                })
+    
+                return habit
+            }
+    
+            const habit = await ctx.prisma.habit.create({
+                data: {
+                    user: {
+                        connect: {
+                            id: ctx.session?.user.id
+                        }
+                    },
+                    name: input.name,
+                    habitDays: input.habitDays,
+                }
+    
+            })
+    
+            return habit
+    
         }
     })
     .mutation("update-habit", {
