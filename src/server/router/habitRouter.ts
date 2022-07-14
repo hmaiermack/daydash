@@ -10,12 +10,19 @@ export const taskRouter = createRouter()
         return next()
     })
     .query("habits", {
-        async resolve() {
+        async resolve({input, ctx }) {
+            const habits = await ctx.prisma.habit.findMany({
+                where: {
+                    userId: ctx.session?.user.id
+                }
+            })
 
+            if(!habits) throw new TRPCError({message: "No habits found", code:"NOT_FOUND"})
+            return habits
         }
     })
     .query("habit-graph", {
-        async resolve () {
+        async resolve({input, ctx }) {
 
         }
     })
@@ -23,7 +30,7 @@ export const taskRouter = createRouter()
         input: z.object({
 
         }),
-        async resolve () {
+        async resolve({input, ctx }) {
             
         }
     })
@@ -31,7 +38,7 @@ export const taskRouter = createRouter()
         input: z.object({
 
         }),
-        async resolve () {
+        async resolve({input, ctx }) {
             
         }
     })
@@ -39,7 +46,7 @@ export const taskRouter = createRouter()
         input: z.object({
 
         }),
-        async resolve () {
+        async resolve({input, ctx }) {
             
         }
     })
@@ -47,7 +54,7 @@ export const taskRouter = createRouter()
         input: z.object({
 
         }),
-        async resolve () {
+        async resolve({input, ctx }) {
             
         }
     })
@@ -55,7 +62,7 @@ export const taskRouter = createRouter()
         input: z.object({
 
         }),
-        async resolve () {
+        async resolve({input, ctx }) {
             
         }
     })
