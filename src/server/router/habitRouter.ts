@@ -19,7 +19,7 @@ export const taskRouter = createRouter()
                 }
             })
 
-            if(!habits) throw new TRPCError({message: "No habits found", code:"NOT_FOUND"})
+            if(!habits) throw new TRPCError({message: "Something went wrong.", code:"INTERNAL_SERVER_ERROR"})
             return habits
         }
     })
@@ -141,10 +141,36 @@ export const taskRouter = createRouter()
     })
     .mutation("update-habit", {
         input: z.object({
-
+            habitId: z.string().cuid(),
+            name: z.string().min(1, {message: "Name can't be empty"}).optional(),
+            habitDays: z.array(z.boolean()).length(7).optional(),
+            remindTime: z.string().optional(),
+            remindDays: z.array(z.boolean()).optional()
         }),
         async resolve({input, ctx }) {
-            
+            const habit = await ctx.prisma.habit.findUnique({
+                where: {
+                    id: input.habitId
+                }
+            })
+
+            if(!habit) throw new TRPCError({ message: "Habit not found.", code:"NOT_FOUND"})
+    
+            const updatedHabit = await ctx.prisma.habit.update({
+                where: {
+                    id: input.habitId
+                },
+                data: {
+                    name: input.name ? input.name : habit.name,
+                    habitDays: input.habitDays ? input.habitDays : habit.habitDays,
+                    remindTime: input.remindTime ? input.remindTime : habit.remindTime,
+                    remindDays: input.remindDays ? input.remindDays : habit.remindDays
+    
+                }
+            })
+    
+            return updatedHabit
+    
         }
     })
     .mutation("delete-habit", {
