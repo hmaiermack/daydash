@@ -36,24 +36,8 @@ export const taskRouter = createRouter()
                 }
             })
 
-            interface ITaskMap {
-                [key: string]: Task[] | [] | Date
-            }
+            return tasks
 
-            const taskObjectByDate: ITaskMap = {}
-            const taskMap = {
-                weekStart,
-                weekEnd,
-                taskObjectByDate
-              };
-            
-
-              tasks.forEach((task) => {
-                const day = format(task.timeStart, 'eeee');
-                if (!taskObjectByDate[day]) taskObjectByDate[day] = [];
-                (taskObjectByDate[`${day}`]as unknown as Task[]).push(task);
-              });
-              return taskMap;
         }
     })
     .mutation("new-task", {

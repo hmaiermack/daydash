@@ -2,7 +2,7 @@ import { addDays, addMinutes } from "date-fns";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
-import { DayTable } from "../components/dayCalendar/dayTable";
+import { DayTable } from "../components/dayCalendar/DayTable";
 import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
