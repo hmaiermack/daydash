@@ -12,14 +12,15 @@ const Home: NextPage = () => {
 
   const handleClick = async () => {
     newTask.mutate({
-      title: "First Task",
-      timeStart: addDays(date, 1),
+      title: "3 Task",
+      timeStart: addDays(date, 3),
       timeEnd: addMinutes(addDays(date, 1), 5),
     })
   }
 
   return (
     <>
+    <button onClick={handleClick}>Add task</button>
     <DayTable />
     </>
   );

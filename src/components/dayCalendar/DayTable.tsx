@@ -2,20 +2,17 @@ import React, { useState } from 'react'
 import { times } from '../../utils/constants'
 import { useTable } from 'react-table'
 import { trpc } from '../../utils/trpc'
-import { Task } from '@prisma/client'
+import { Tag, Task } from '@prisma/client'
 import { addDays, addHours, eachDayOfInterval, eachHourOfInterval, endOfDay, format, isSameHour, nextSaturday, previousSunday, startOfDay } from 'date-fns'
 
 export const DayTable = () => {
 
     
     const [date, setDate] = useState(new Date)
-    console.log(date)
     const weekStart = startOfDay(previousSunday(date))
     const weekEnd = endOfDay(nextSaturday(date))
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {date}]);  
     //define user time range from 8 am to 4 pm
-    console.log(taskData)
-    console.log(format(date, "K:m bb"))
     const dayCols: { Header: string, accessor: string}[] = []
     for(let i = 0; i <= 6; i++){
         const day = format(addDays(weekStart, i), "EEEE")
@@ -35,37 +32,60 @@ export const DayTable = () => {
 
     let test: any = []
 
+    const tableRows: any[] = []
     if(taskData) {
-        const tasksPerDay: any[] = []
         const days = eachDayOfInterval({
             start: weekStart,
             end: weekEnd
         })
-        days.forEach(day => {
-            const hourInterval = eachHourOfInterval({
-                start: addHours(day, userRange[0]),
-                end: addHours(day, (userRange[1] - 1))
-            })
-            hourInterval.forEach(hour => {
-                const task = taskData.find(task => {
-                    return isSameHour(task.timeStart, hour)
-                })
-                if(task != undefined) {
-                    tasksPerDay.push({
-                        times: format(hour, "h:mm aa"),
-                        [format(day, "EEEE")]: task.title
-                    })
+        let day = weekStart
+        for(let i = userRange[0]; i < userRange[1]; i++) {
+            const tempRowObject: {[key:string]: any} = {}
+            const hourString = addHours(day, i)
+            days.forEach(day => {
+                const hour = addHours(day, i)
+                let temp: undefined | (Task & {tag: Tag | null})
+                taskData.forEach(task => {if(isSameHour(task.timeStart, hour)){temp = task}})
+                // const task = taskData.find(task => {
+                //     isSameHour(task.timeStart, hour)
+                // })
+                if(temp !== undefined) {
+                    tempRowObject[format(day, "EEEE")] = temp.title
                 } else {
-                    tasksPerDay.push({
-                        times: format(hour, "h:mm aa"),
-                        [format(day, "EEEE")]: ''
-                    })
+                    tempRowObject[format(day, "EEEE")] = null
                 }
             })
-        })
+            tempRowObject.times = format(hourString, "h:mm aa")
+            tableRows.push(tempRowObject)
+            day = addDays(day, 1)
+        }
+        // days.forEach(day => {
+        //     const hourInterval = eachHourOfInterval({
+        //         start: addHours(day, userRange[0]),
+        //         end: addHours(day, (userRange[1] - 1))
+        //     })
+        //     hourInterval.forEach(hour => {
+        //         const task = taskData.find(task => {
+        //             return isSameHour(task.timeStart, hour)
+        //         })
+        //         if(task != undefined) {
+        //             tasksPerDay.push({
+        //                 times: format(hour, "h:mm aa"),
+        //                 [format(day, "EEEE")]: task.title
+        //             })
+        //         } else {
+        //             tasksPerDay.push({
+        //                 times: format(hour, "h:mm aa"),
+        //                 [format(day, "EEEE")]: ''
+        //             })
+        //         }
+        //     })
+        // })
 
-        test = tasksPerDay
+        test = tableRows
     }
+
+    console.log(test)
 
 
     const data = React.useMemo(() => [...test], [])
