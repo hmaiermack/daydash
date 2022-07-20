@@ -21,6 +21,7 @@ export const DayTable = () => {
             accessor: day
         })
     }
+    console.log(taskData)
     //needs to be persisted via db
     const userRange = [8, 16] as const
     //convert it to an array usable by react-table
@@ -30,7 +31,7 @@ export const DayTable = () => {
     const timesArray: timesVal[] = []
     tableTimes.forEach(time => timesArray.push({'times': time}))
 
-    let test: any = []
+    let tableData: any = []
 
     const tableRows: any[] = []
     if(taskData) {
@@ -46,6 +47,7 @@ export const DayTable = () => {
                 const hour = addHours(day, i)
                 let temp: undefined | (Task & {tag: Tag | null})
                 taskData.forEach(task => {if(isSameHour(task.timeStart, hour)){temp = task}})
+                //below should be working, don;t know why it isnt
                 // const task = taskData.find(task => {
                 //     isSameHour(task.timeStart, hour)
                 // })
@@ -59,36 +61,14 @@ export const DayTable = () => {
             tableRows.push(tempRowObject)
             day = addDays(day, 1)
         }
-        // days.forEach(day => {
-        //     const hourInterval = eachHourOfInterval({
-        //         start: addHours(day, userRange[0]),
-        //         end: addHours(day, (userRange[1] - 1))
-        //     })
-        //     hourInterval.forEach(hour => {
-        //         const task = taskData.find(task => {
-        //             return isSameHour(task.timeStart, hour)
-        //         })
-        //         if(task != undefined) {
-        //             tasksPerDay.push({
-        //                 times: format(hour, "h:mm aa"),
-        //                 [format(day, "EEEE")]: task.title
-        //             })
-        //         } else {
-        //             tasksPerDay.push({
-        //                 times: format(hour, "h:mm aa"),
-        //                 [format(day, "EEEE")]: ''
-        //             })
-        //         }
-        //     })
-        // })
 
-        test = tableRows
+        tableData = tableRows
     }
 
-    console.log(test)
+    console.log(tableData)
 
 
-    const data = React.useMemo(() => [...test], [])
+    const data = React.useMemo(() => [...tableData], [])
 
     const columns = React.useMemo(() => [
         {
