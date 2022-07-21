@@ -72,36 +72,6 @@ type TimeRow = {
   },
 }
 
-
-const defaultData: TimeRow[] = [
-  {
-    time: '8:00 AM',
-    sunday: {
-      taskId: '1',
-      taskTitle: 'A title',
-      taskStart: new Date,
-      taskEnd: new Date
-    },
-    tuesday: {
-      taskId: '3',
-      taskTitle: 'tues',
-      taskStart: new Date,
-      taskEnd: new Date
-
-    }
-  },
-  {
-    time: '9:00 AM',
-    sunday: {
-      taskId: '2',
-      taskTitle: 'Another title',
-      taskStart: new Date,
-      taskEnd: new Date
-
-    }
-  }
-]
-
 const columnHelper = createColumnHelper<TimeRow>()
 
 const columns = [
@@ -224,9 +194,9 @@ const columns = [
 ]
 export const Table = () => {
   const [date, setDate] = useState(new Date)
-const weekStart = startOfDay(previousSunday(date))
-const weekEnd = endOfDay(nextSaturday(date))
-const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {date}]);  
+  const weekStart = startOfDay(previousSunday(date))
+  const weekEnd = endOfDay(nextSaturday(date))
+  const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {date}]);  
 
 //needs to be persisted via db
 const userRange = [8, 16] as const
