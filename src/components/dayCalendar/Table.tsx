@@ -4,6 +4,7 @@ import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSameHour, nex
 import { trpc } from '../../utils/trpc'
 import { Tag, Task } from '@prisma/client'
 import { EmptyDay } from './EmptyDay'
+import { DayEvent } from './DayEvent'
  
 
 //each time has associated tasks that may or may not happen on a given day
@@ -95,10 +96,14 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4 min-w-20'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          <DayEvent 
+            taskId={day.taskId} 
+            taskTitle={day.taskTitle} 
+            taskStart={day.taskStart}
+            taskEnd={day.taskEnd}
+            tagId={day.tagId}
+            tagColorValue={day.tagColorValue}
+            tagName={day.tagName}/>
         )
       },
       enableHiding: true,
@@ -114,10 +119,14 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4 min-w-20'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          <DayEvent 
+            taskId={day.taskId} 
+            taskTitle={day.taskTitle} 
+            taskStart={day.taskStart}
+            taskEnd={day.taskEnd}
+            tagId={day.tagId}
+            tagColorValue={day.tagColorValue}
+            tagName={day.tagName} />
         )
       },
       enableHiding: true,
@@ -133,10 +142,14 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4 min-w-20'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          <DayEvent 
+            taskId={day.taskId} 
+            taskTitle={day.taskTitle} 
+            taskStart={day.taskStart}
+            taskEnd={day.taskEnd}
+            tagId={day.tagId}
+            tagColorValue={day.tagColorValue}
+            tagName={day.tagName}/>
         )
       },
       enableHiding: true,
@@ -152,10 +165,14 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
         
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4 min-w-20'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          <DayEvent 
+            taskId={day.taskId} 
+            taskTitle={day.taskTitle} 
+            taskStart={day.taskStart}
+            taskEnd={day.taskEnd}
+            tagId={day.tagId}
+            tagColorValue={day.tagColorValue}
+            tagName={day.tagName}/>
         )
       },
       enableHiding: true,
@@ -167,14 +184,18 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         const day = info.getValue()
         
         if(!day) return (
-          <div className='h-20 w-40 translate-y-11 relative bg-yellow-400'></div>
+          <EmptyDay screenWidth={screenWidth} />
         )
   
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4 min-w-20'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          <DayEvent 
+            taskId={day.taskId} 
+            taskTitle={day.taskTitle} 
+            taskStart={day.taskStart}
+            taskEnd={day.taskEnd}
+            tagId={day.tagId}
+            tagColorValue={day.tagColorValue}
+            tagName={day.tagName}/>
         )
       },
       enableHiding: true,
@@ -186,14 +207,18 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         const day = info.getValue()
   
         if(!day) return (
-          <div className='h-20 w-40 bg-slate-400 translate-y-11 relative'></div>
+          <EmptyDay screenWidth={screenWidth} />
         )
   
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4 min-w-20'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          <DayEvent 
+            taskId={day.taskId} 
+            taskTitle={day.taskTitle} 
+            taskStart={day.taskStart}
+            taskEnd={day.taskEnd}
+            tagId={day.tagId}
+            tagColorValue={day.tagColorValue}
+            tagName={day.tagName}/>
         )
       },
       enableHiding: true,
@@ -282,7 +307,7 @@ useMemo(() => {
   return (
     
     <table>
-    <thead className=''>
+    <thead className='translate-y-4 text-lg font-semibold text-gray-800'>
         { table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
                 { headerGroup.headers.map(header => (
