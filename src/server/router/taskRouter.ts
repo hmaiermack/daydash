@@ -29,7 +29,13 @@ export const taskRouter = createRouter()
                     }
                 },
                 include: {
-                    tag: true
+                    tag: true,
+                    user: {
+                        select: {
+                            timeRangeStart: true,
+                            timeRangeEnd: true
+                        }
+                    }
                 },
                 orderBy: {
                     timeStart: 'asc'

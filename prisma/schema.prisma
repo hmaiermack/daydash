@@ -50,6 +50,8 @@ model User {
     accounts      Account[]
     sessions      Session[]
 
+    timeRangeStart Int @default(9)
+    timeRangeEnd Int @default(17)
     tasks Task[]
     habits Habit[]
     completedHabits CompletedHabit[]

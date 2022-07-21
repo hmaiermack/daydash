@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "timeRangeEnd" INTEGER NOT NULL DEFAULT 17,
+ADD COLUMN     "timeRangeStart" INTEGER NOT NULL DEFAULT 9;

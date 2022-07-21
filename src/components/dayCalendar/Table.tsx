@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react'
-import { createColumn, getCoreRowModel, flexRender, createColumnHelper, useReactTable } from '@tanstack/react-table'
+import { getCoreRowModel, flexRender, createColumnHelper, useReactTable } from '@tanstack/react-table'
 import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSameHour, nextSaturday, previousSunday, startOfDay } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Tag, Task } from '@prisma/client'
 
 
+//each time has associated tasks that may or may not happen on a given day
+// time: 8:00 AM, sunday: {TASK metadata}, monday: undefined, ... saturday: {TASK metadata}
 type TimeRow = {
   time: string,
   sunday?: {
@@ -212,6 +214,10 @@ useMemo(() => {
         end: weekEnd
     })
     let day = weekStart
+    //this is nasty
+    //probably should just get userInfo from api and make it available to whole app
+    //alternatively could pass it thru tasks.task as an object {timeStart, timeEnd, tasks: [...]}?
+    const userRange = [taskData[0] ? taskData[0].user.timeRangeStart : 9, taskData[0] ? taskData[0].user.timeRangeEnd : 17] as const
     for(let i = userRange[0]; i < userRange[1]; i++) {
         const tempRowObject: {[key:string]: any, time: string} = { time: ''}
         const hourString = addHours(day, i)
@@ -246,8 +252,7 @@ useMemo(() => {
 }, [taskData])
 
 
-console.log(tableRows)
-
+console.log(taskData)
   const table = useReactTable({
     data, columns, getCoreRowModel: getCoreRowModel()
   })
