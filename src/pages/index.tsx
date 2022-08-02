@@ -4,8 +4,8 @@ import { Table } from "../components/dayCalendar/Table";
 import useWindowSize from "../hooks/useWindowSize";
 
 const Home: NextPage = () => {
-  const { width } = useWindowSize()
-
+  const { width, height } = useWindowSize()
+console.log(height)
   return (
     <>
       <div>

@@ -255,7 +255,7 @@ const userRange = [8, 16] as const
 const tableRows: TimeRow[] = []
 const [data, setData] = useState(() => [...tableRows])
 
-
+console.log(taskData)
 useMemo(() => {
   if(taskData) {
     const days = eachDayOfInterval({
@@ -311,7 +311,7 @@ useMemo(() => {
         { table.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
                 { headerGroup.headers.map(header => (
-                    <th key={header.id}>
+                    <th key={header.id} className='w-52'>
                       {
                         header.isPlaceholder 
                         ? null
@@ -330,9 +330,9 @@ useMemo(() => {
     <tbody className=''>
       <tr className='h-10'></tr>
        {table.getRowModel().rows.map(row => (
-        <tr key={row.id} className='divide-y divide-y-blue-300 -translate-y-11 '>
+        <tr key={row.id} className='divide-y divide-y-blue-300 -translate-y-11 h-20'>
           {row.getVisibleCells().map(cell => (
-            <td key={cell.id}>
+            <td key={cell.id} className='mx-auto'>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>
           ))}
