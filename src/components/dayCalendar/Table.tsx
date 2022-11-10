@@ -1,89 +1,89 @@
 import React, { useMemo, useState } from 'react'
 import { getCoreRowModel, flexRender, createColumnHelper, useReactTable } from '@tanstack/react-table'
-import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSameHour, nextSaturday, previousSunday, startOfDay } from 'date-fns'
+import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSameHour, nextSaturday, previousSunday, startOfDay, isSameDay } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Tag, Task } from '@prisma/client'
 import { EmptyDay } from './EmptyDay'
 import { DayEvent } from './DayEvent'
+import EventContainer from './EventContainer'
  
 
 //each time has associated tasks that may or may not happen on a given day
-// time: 8:00 AM, sunday: {TASK metadata}, monday: undefined, ... saturday: {TASK metadata}
+// time: 8:00 AM, sunday: [{TASK metadata}], monday: undefined, ... saturday: [{TASK metadata}]
 type TimeRow = {
   time: string,
-  sunday?: {
+  sunday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
-  monday?: {
+  }[],
+  monday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
-  tuesday?: {
+  }[],
+  tuesday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
-  wednesday?: {
+  }[],
+  wednesday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
-  thursday?: {
+  }[],
+  thursday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
-  friday?: {
+  }[],
+  friday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
-  saturday?: {
+  }[],
+  saturday: {
     taskId: string,
-    taskTitle: string,
-    taskStart: Date,
-    taskEnd: Date,
+    title: string,
+    start: Date,
+    end: Date,
     tagId?: string,
     tagColorValue?: string,
     tagName?: string,
-  },
+  }[],
 }
 
 const columnHelper = createColumnHelper<TimeRow>()
-
 
 export const Table = ({screenWidth}: { screenWidth: number}) => {
   const columns = [
     columnHelper.accessor('time', {
       header: () => '',
-      cell: info => (<span className='text-gray-500 p-2'>{info.getValue()}</span>)
+      cell: info => (<span className='text-gray-500 p-2 divide-y divide-y-blue-300'>{info.getValue()}</span>)
     }),
     columnHelper.accessor(row => row.sunday, {
       header: () => 'Sunday',
@@ -96,14 +96,16 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <DayEvent 
-            taskId={day.taskId} 
-            taskTitle={day.taskTitle} 
-            taskStart={day.taskStart}
-            taskEnd={day.taskEnd}
-            tagId={day.tagId}
-            tagColorValue={day.tagColorValue}
-            tagName={day.tagName}/>
+          day.map((day) => {
+            <DayEvent 
+              taskId={day.taskId} 
+              taskTitle={day.title} 
+              taskStart={day.start}
+              taskEnd={day.end}
+              tagId={day.tagId}
+              tagColorValue={day.tagColorValue}
+              tagName={day.tagName}/>
+          })
         )
       },
       enableHiding: true,
@@ -119,14 +121,16 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <DayEvent 
-            taskId={day.taskId} 
-            taskTitle={day.taskTitle} 
-            taskStart={day.taskStart}
-            taskEnd={day.taskEnd}
-            tagId={day.tagId}
-            tagColorValue={day.tagColorValue}
-            tagName={day.tagName} />
+          day.map((day) => {
+            <DayEvent 
+              taskId={day.taskId} 
+              taskTitle={day.title} 
+              taskStart={day.start}
+              taskEnd={day.end}
+              tagId={day.tagId}
+              tagColorValue={day.tagColorValue}
+              tagName={day.tagName}/>
+          })
         )
       },
       enableHiding: true,
@@ -142,14 +146,16 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <DayEvent 
-            taskId={day.taskId} 
-            taskTitle={day.taskTitle} 
-            taskStart={day.taskStart}
-            taskEnd={day.taskEnd}
-            tagId={day.tagId}
-            tagColorValue={day.tagColorValue}
-            tagName={day.tagName}/>
+          day.map((day) => {
+            <DayEvent 
+              taskId={day.taskId} 
+              taskTitle={day.title} 
+              taskStart={day.start}
+              taskEnd={day.end}
+              tagId={day.tagId}
+              tagColorValue={day.tagColorValue}
+              tagName={day.tagName}/>
+          })
         )
       },
       enableHiding: true,
@@ -165,14 +171,16 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
         
         return (
-          <DayEvent 
-            taskId={day.taskId} 
-            taskTitle={day.taskTitle} 
-            taskStart={day.taskStart}
-            taskEnd={day.taskEnd}
-            tagId={day.tagId}
-            tagColorValue={day.tagColorValue}
-            tagName={day.tagName}/>
+          day.map((day) => {
+            <DayEvent 
+              taskId={day.taskId} 
+              taskTitle={day.title} 
+              taskStart={day.start}
+              taskEnd={day.end}
+              tagId={day.tagId}
+              tagColorValue={day.tagColorValue}
+              tagName={day.tagName}/>
+          })
         )
       },
       enableHiding: true,
@@ -181,22 +189,66 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
       header: () => 'Thursday',
       id: 'Thursday',
       cell: info => {
-        const day = info.getValue()
-        
-        if(!day) return (
+        const tasks = info.getValue()
+        console.log({tasks, length: tasks.length})
+        if(tasks?.length === 0) return (
           <EmptyDay screenWidth={screenWidth} />
-        )
-  
-        return (
-          <DayEvent 
-            taskId={day.taskId} 
-            taskTitle={day.taskTitle} 
-            taskStart={day.taskStart}
-            taskEnd={day.taskEnd}
-            tagId={day.tagId}
-            tagColorValue={day.tagColorValue}
-            tagName={day.tagName}/>
-        )
+          )
+
+        if(tasks?.length && tasks?.length === 1) {
+          return (
+            <>
+            {tasks[0] &&
+              <DayEvent 
+              taskId={tasks[0].taskId} 
+              taskTitle={tasks[0].title} 
+              taskStart={tasks[0].start}
+              taskEnd={tasks[0].end}
+              tagId={tasks[0].tagId}
+              tagColorValue={tasks[0].tagColorValue}
+              tagName={tasks[0].tagName}/>
+            
+            }
+            </>
+          )
+        }
+          
+          if(tasks?.length > 1){
+            console.log("in task length > 1")
+            return (
+              <>
+                  {tasks &&
+                  <>
+                  {tasks.map((task) => {
+                    return (
+                      <DayEvent 
+                         taskId={task.taskId} 
+                         taskTitle={task.title} 
+                         taskStart={task.start}
+                         taskEnd={task.end}
+                         tagId={task.tagId}
+                         tagColorValue={task.tagColorValue}
+                         tagName={task.tagName}/>
+                    )
+
+                  })}
+                    </>
+                  }
+
+                {/* {tasks!.length > 0 && tasks?.map((task) => {
+                  console.log("now inside tasks map for day event")
+                  //  <DayEvent 
+                  //    taskId={task.taskId} 
+                  //    taskTitle={task.title} 
+                  //    taskStart={task.start}
+                  //    taskEnd={task.end}
+                  //    tagId={task.tagId}
+                  //    tagColorValue={task.tagColorValue}
+                  //    tagName={task.tagName}/>
+                })} */}
+              </>
+            )    
+          }
       },
       enableHiding: true,
     }),
@@ -211,14 +263,16 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <DayEvent 
-            taskId={day.taskId} 
-            taskTitle={day.taskTitle} 
-            taskStart={day.taskStart}
-            taskEnd={day.taskEnd}
-            tagId={day.tagId}
-            tagColorValue={day.tagColorValue}
-            tagName={day.tagName}/>
+          day.map((day) => {
+            <DayEvent 
+              taskId={day.taskId} 
+              taskTitle={day.title} 
+              taskStart={day.start}
+              taskEnd={day.end}
+              tagId={day.tagId}
+              tagColorValue={day.tagColorValue}
+              tagName={day.tagName}/>
+          })
         )
       },
       enableHiding: true,
@@ -234,10 +288,16 @@ export const Table = ({screenWidth}: { screenWidth: number}) => {
         )
   
         return (
-          <div className='flex flex-col h-20 w-40 justify-center ml-4 p-4'>          
-            <span>{day.taskId}</span>
-            <span className=''>{day.taskTitle}</span>
-          </div>
+          day.map((day) => {
+            <DayEvent 
+              taskId={day.taskId} 
+              taskTitle={day.title} 
+              taskStart={day.start}
+              taskEnd={day.end}
+              tagId={day.tagId}
+              tagColorValue={day.tagColorValue}
+              tagName={day.tagName}/>
+          })
         )
       },
       enableHiding: true,
@@ -254,10 +314,8 @@ const userRange = [8, 16] as const
 
 const tableRows: TimeRow[] = []
 const [data, setData] = useState(() => [...tableRows])
-
-console.log(taskData)
 useMemo(() => {
-  if(taskData) {
+  if(taskData != undefined) {
     const days = eachDayOfInterval({
         start: weekStart,
         end: weekEnd
@@ -266,28 +324,35 @@ useMemo(() => {
     //this is nasty
     //probably should just get userInfo from api and make it available to whole app
     //alternatively could pass it thru tasks.task as an object {timeStart, timeEnd, tasks: [...]}?
-    const userRange = [taskData[0] ? taskData[0].user.timeRangeStart : 9, taskData[0] ? taskData[0].user.timeRangeEnd : 17] as const
+    const userRange = [taskData!.timeRangeStart, taskData!.timeRangeEnd] as const
     for(let i = userRange[0]; i < userRange[1]; i++) {
-        const tempRowObject: {[key:string]: any, time: string} = { time: ''}
+        // const tempRowObject: { 
+        //   'sunday'?: any,
+        //   'monday'?: any,
+        //   'tuesday'?: any,
+        //   'wednesday'?: any,
+        //   'thursday'?: any,
+        //   'friday'?: any,
+        //   'saturday'?: any,
+        //   time: string
+        //  } = { time: ''}
+        const tempRowObject: any = {time: ''}
         const hourString = addHours(day, i)
         days.forEach(day => {
             const hour = addHours(day, i)
-            let temp: undefined | (Task & {tag: Tag | null})
-            taskData.forEach(task => {if(isSameHour(task.timeStart, hour)){temp = task}})
+            let temp: (Task & {tag: Tag | null})[] = []
+            if(!taskData.tasks) return
+            taskData.tasks.forEach(task => {
+              if(task.start && isSameHour(task!.start, hour)){
+              temp!.push(task)
+              }
+            })
             //below should be working, don;t know why it isnt
             // const task = taskData.find(task => {
             //     isSameHour(task.timeStart, hour)
             // })
             if(temp !== undefined) {
-                tempRowObject[format(day, "EEEE").toLowerCase()] = {
-                  taskId: temp.id,
-                  taskTitle: temp.title,
-                  taskStart: temp.timeStart,
-                  taskEnd: temp.timeEnd,
-                  tagId: temp.tagId ? temp.tagId : undefined,
-                  tagColorValue: temp.tag?.colorHexValue ? temp.tag?.colorHexValue : undefined,
-                  tagName: temp.tag?.name ? temp.tag?.name : undefined           
-                }
+                tempRowObject[format(day, "EEEE").toLowerCase()] = temp
             } else {
                 tempRowObject[format(day, "EEEE")] = undefined
             }
@@ -300,9 +365,8 @@ useMemo(() => {
   }  
 }, [taskData])
 
-
   const table = useReactTable({
-    data, columns, getCoreRowModel: getCoreRowModel()
+    data, columns, getCoreRowModel: getCoreRowModel(), initialState: { columnVisibility: { Sunday: false, Monday: false, Tuesday: false, Wednesday: false, Friday: false, Saturday: false}}
   })
   return (
     
@@ -330,12 +394,13 @@ useMemo(() => {
     <tbody className=''>
       <tr className='h-10'></tr>
        {table.getRowModel().rows.map(row => (
-        <tr key={row.id} className='divide-y divide-y-blue-300 -translate-y-11 h-20'>
+        <tr key={row.id} className='divide-y divide-y-blue-300 -translate-y-11 h-20 max-h-20'>
           {row.getVisibleCells().map(cell => (
-            <td key={cell.id} className='mx-auto'>
+            <td key={cell.id} className='mx-auto border-x p-0 border-t-0'>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>
           ))}
+          <span className='w-full h-[1px] bg-red-600 absolute -translate-y-12 left-0'>f</span>
         </tr>
        ))}
     </tbody>
