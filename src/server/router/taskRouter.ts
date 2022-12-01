@@ -2,7 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
 import { endOfDay, format, nextSaturday, previousSunday, startOfDay } from 'date-fns'
-import { Task } from "@prisma/client";
+import { Tag, Task } from "@prisma/client";
+import { ProcessedEvent } from "@aldabil/react-scheduler/dist/types";
 
 export const taskRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
@@ -11,39 +12,44 @@ export const taskRouter = createRouter()
         }
         return next()
     })
+
+    /*
+    interface CalendarEvent {
+    event_id: number | string;
+    title: string;
+    start: Date;
+    end: Date;
+    */
     .query("tasks", {
         input: z.object({
             date: z.date()
         }),
-        async resolve({input, ctx }) {
-            const weekStart = startOfDay(previousSunday(input.date))
-            const weekEnd = endOfDay(nextSaturday(input.date))
+        async resolve({ ctx }) {
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                    id: ctx.session?.user.id
+                }
+            })
+
+            if ( !user ) throw new TRPCError({message: "User not found.", code:"UNAUTHORIZED"})
             const tasks = await ctx.prisma.task.findMany({
                 where: {
                     userId: ctx.session?.user.id,
-                    timeStart: {
-                        gte: weekStart,
-                    },
-                    timeEnd: {
-                        lte: weekEnd
-                    }
                 },
                 include: {
                     tag: true,
-                    user: {
-                        select: {
-                            timeRangeStart: true,
-                            timeRangeEnd: true
-                        }
-                    }
                 },
                 orderBy: {
                     timeStart: 'asc'
                 }
             })
 
-            return tasks
 
+            return {
+                timeRangeStart: user.timeRangeStart,
+                timeRangeEnd: user.timeRangeEnd,
+                tasks
+            }
         }
     })
     .mutation("new-task", {
@@ -57,7 +63,6 @@ export const taskRouter = createRouter()
             }).optional()
         }),
         async resolve ({input, ctx}) {
-            console.log({input})
             if (input.tag) {
                 console.log("inside new task with tag")
                 const task = await ctx.prisma.task.create({
@@ -86,8 +91,19 @@ export const taskRouter = createRouter()
                         tag: true
                     }
                 })
+                const e = {
+                    event_id: task.id,
+                    title: task.title,
+                    start: task.timeStart,
+                    end: task.timeEnd,
+                    tagInfo: {
+                        id: task.tag?.id,
+                        name: task.tag?.name,
+                        color: task.tag?.colorHexValue
+                    }
+                }
 
-                return task
+                return e
             }   
 
             console.log("new task without tag")
@@ -105,7 +121,15 @@ export const taskRouter = createRouter()
                 }
             })
 
-            return task
+            const e = {
+                event_id: task.id,
+                title: task.title,
+                start: task.timeStart,
+                end: task.timeEnd,
+            }
+
+            return e
+
         }
     })
     .mutation("update-task", {
