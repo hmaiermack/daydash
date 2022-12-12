@@ -31,13 +31,24 @@ export const taskRouter = createRouter()
                 }
             })
 
+            const tags = await ctx.prisma.tag.findMany({
+                where: {
+                    userId: ctx.session?.user.id
+                }   
+            })
+
             if ( !user ) throw new TRPCError({message: "User not found.", code:"UNAUTHORIZED"})
             const tasks = await ctx.prisma.task.findMany({
                 where: {
                     userId: ctx.session?.user.id,
                 },
                 include: {
-                    tag: true,
+                    tag: {
+                        select: {
+                            name: true,
+                            colorHexValue: true
+                        }
+                    }
                 },
                 orderBy: {
                     timeStart: 'asc'
@@ -48,7 +59,8 @@ export const taskRouter = createRouter()
             return {
                 timeRangeStart: user.timeRangeStart,
                 timeRangeEnd: user.timeRangeEnd,
-                tasks
+                tasks,
+                tags
             }
         }
     })
@@ -58,12 +70,12 @@ export const taskRouter = createRouter()
             timeStart: z.date(),
             timeEnd: z.date(),
             tag: z.object({
-                name: z.string(),
+                name: z.string().optional(),
                 colorHexValue: z.string().optional()
             }).optional()
         }),
         async resolve ({input, ctx}) {
-            if (input.tag) {
+            if (input.tag && input.tag.colorHexValue && input.tag.name) {
                 console.log("inside new task with tag")
                 const task = await ctx.prisma.task.create({
                     data: {
@@ -82,7 +94,12 @@ export const taskRouter = createRouter()
                                 },
                                 create: {
                                     name: input.tag.name,
-                                    colorHexValue: input.tag.colorHexValue
+                                    colorHexValue: input.tag.colorHexValue,
+                                    user: {
+                                        connect: { 
+                                            id: ctx.session?.user.id
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -166,6 +183,11 @@ export const taskRouter = createRouter()
                           create: {
                             name: input.tag.name,
                             colorHexValue: input.tag.colorHexValue,
+                            user: {
+                                connect: { 
+                                    id: ctx.session?.user.id
+                                }
+                            }
                           },
                           update: {
                             name: input.tag.name,
