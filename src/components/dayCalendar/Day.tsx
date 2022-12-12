@@ -2,15 +2,19 @@ import { Task } from '@prisma/client'
 import { addHours } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react'
 import CreateModal from './CreateModal';
-import { DayEvent } from './Event';
+import { Event } from './Event';
 import HourMarker from './HourMarker';
 
-const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {tasks: Task[], timeRangeStart: number, timeRangeEnd: number, day: Date | undefined}) => {
+const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {
+    tasks: (Task & {
+        tag: {
+            name: string;
+            colorHexValue: string;
+        } | null;})[], 
+    timeRangeStart: number, timeRangeEnd: number, day: Date | undefined}) => {
     const [height, setHeight] = useState<number>(0)
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-    const [createModalTimeAndDate, setCreateModalTimeAndDate] = useState<Date>(new Date)
     const dayRef = useRef<HTMLDivElement>(null)
-
+    console.log(tasks)
     useEffect(() => {
         setHeight(dayRef.current!.offsetHeight)
     }, [])
@@ -22,7 +26,7 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {tasks: Task[], timeRan
         const timeAndDate = addHours(day, i)
         hourMarkers.push(
             //TODO: modal onclick w/ metadata for day/time
-            <HourMarker key={timeAndDate.toString()} timeAndDate={timeAndDate} setCreateModalTimeAndDate={setCreateModalTimeAndDate} setIsCreateModalOpen={setIsCreateModalOpen}/>
+            <HourMarker key={timeAndDate.toString()} timeAndDate={timeAndDate} />
         )
         }
     }
@@ -36,14 +40,12 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {tasks: Task[], timeRan
                 })
             }
             <span className='content-none h-[1px] absolute bottom-0 bg-gray-200 w-full'></span>
-            {   dayRef.current != null && dayRef &&
+            {   height != 0 &&
                 tasks.map((task) => {
-                    return <DayEvent taskId={task.id} taskTitle={task.title} taskStart={task.timeStart} taskEnd={task.timeEnd} steps={steps} startHour={timeRangeStart} parentHeight={height}/>
+                    return <Event key={task.id} tagId={task.tag ? task.tagId : null} tagColorValue={task.tag ? task.tag.colorHexValue: null} tagName={task.tag ? task.tag.name : null}  taskId={task.id} taskTitle={task.title} taskStart={task.timeStart} taskEnd={task.timeEnd} steps={steps} startHour={timeRangeStart} parentHeight={height}/>
                 })
             }
         </div>
-        {/* <CreateModal timeAndDate={createModalTimeAndDate} isOpen={isCreateModalOpen} setIsOpen={setIsCreateModalOpen} timeRangeEnd={timeRangeEnd} timeRangeStart={timeRangeStart}/> */}
-
     </>
   )
 }

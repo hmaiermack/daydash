@@ -1,42 +1,64 @@
-import React, { useState } from 'react'
+import { Combobox } from '@headlessui/react'
+import React, { useState, FocusEvent } from 'react'
+import { ControllerRenderProps } from 'react-hook-form'
 
-const ColorPicker = () => {
-    const [isOpen, setIsOpen] = useState(false)
-    const colors = ["#2196F3", "#6196F3","#2143F3","#2246F3","#67F87C","#2196F3",]
-    const [selectedColor, setSelectedColor] = useState("#2196F3")
+type ColorPickerProps = {
+    defaultValue: string
+ }
+
+const ColorPicker = React.forwardRef<HTMLInputElement, ControllerRenderProps>((props, ref) => {
+    const colors = ["#2196F3", "#6196F3","#2143F3","#2246F3","#67F87C","#2136F3",]
+    const [inputString, setInputString] = useState('')
+
   return (
-    <div className='flex items-center'>
-        <div>
-            <label htmlFor="selectedColor" className="block font-bold mb-1">Select Color</label>
-            <input id="selectedColor" type="text" placeholder="Pick a color"
-                className="border border-transparent shadow px-4 py-2 leading-normal text-gray-700 bg-white rounded-md focus:outline-none focus:shadow-outline"
+    <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable>
+        {({open}) => (
+            <div className='mt-4' >
+                <div className='relative p-2 flex items-center w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm'>
+            {/* 
+                    onFocus in Combobox.Input "clicks" neighbor Combobox.Button so that Combobox parent will automatically open when
+                clicked or tabbed to. This workaround is required as Combobox does expose a setOpen functionality, meaning that we have to
+                "click" the Combobox.Button to setOpen(!open).
+
+                see: https://github.com/tailwindlabs/headlessui/discussions/1236#discussioncomment-2988166 for solution and discussion.
+            */}
+            <Combobox.Label>Tag Color</Combobox.Label>
+            <Combobox.Input
+                placeholder='#000000 Tab or Enter to submit'
+                displayValue={() => props.value ? props.value : inputString}
+                onChange={(e) => setInputString(e.target.value)} 
+                //@ts-ignore
+                onFocus={(e) => {
+                    if (e.relatedTarget?.id?.includes('headlessui-combobox-button')) return;
+                    !open && e.target.nextSibling.click()
+                }}
             />
-        </div>
-
-        <div className="relative ml-3 mt-8">
-            <button type="button" onClick={() => setIsOpen(true)}
-            className={`w-10 h-10 rounded-full focus:outline-none focus:shadow-outline inline-flex p-2 shadow text-white`} style={{background: `${selectedColor}`}}>
+            <Combobox.Button
+            className={`w-10 h-10  ml-2 rounded-full focus:outline-none focus:shadow-outline inline-flex p-2 shadow text-white ${inputString.length == 7 ? '' : 'hidden' }`} style={{background: `${inputString}`}}>
             <svg className={`w-6 h-6 fill-current`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M15.584 10.001L13.998 8.417 5.903 16.512 5.374 18.626 7.488 18.097z"/><path d="M4.03,15.758l-1,4c-0.086,0.341,0.015,0.701,0.263,0.949C3.482,20.896,3.738,21,4,21c0.081,0,0.162-0.01,0.242-0.03l4-1 c0.176-0.044,0.337-0.135,0.465-0.263l8.292-8.292l1.294,1.292l1.414-1.414l-1.294-1.292L21,7.414 c0.378-0.378,0.586-0.88,0.586-1.414S21.378,4.964,21,4.586L19.414,3c-0.756-0.756-2.072-0.756-2.828,0l-2.589,2.589l-1.298-1.296 l-1.414,1.414l1.298,1.296l-8.29,8.29C4.165,15.421,4.074,15.582,4.03,15.758z M5.903,16.512l8.095-8.095l1.586,1.584 l-8.096,8.096l-2.114,0.529L5.903,16.512z"/></svg>
-            </button>
-            {isOpen && 
-                <div className='flex flex-wrap'>
-                    {
-                        colors.map((color) => {
-                            return (
-                                <div className='basis-1/5'>
-                                    <div className='w-4 h-4 m-2' style={{background: `${color}`}} onClick={() => {setSelectedColor(color); console.log(color)}}>
+            </Combobox.Button>
+            <Combobox.Options as="div" className="w-40 bg-white flex flex-wrap">
+                {inputString.length > 0 &&
+                    <Combobox.Option value={inputString} as="div" className="hidden">
+                    </Combobox.Option>
+                }
+                {
+                    colors.map((color) => {
+                        return (
+                            <Combobox.Option as="div" key={color} value={color} className='basis-1/5'>
+                                <div className='w-4 h-4 m-2 rounded-full' style={{background: `${color}`}} >
 
-                                    </div>
                                 </div>
-                            )
-                        })
-                    }
-                </div>
-            }
-        </div>
-    </div>
-
+                            </Combobox.Option>
+                        )
+                    })
+                }
+            </Combobox.Options>
+            </div>
+            </div>
+        )}
+    </Combobox>
   )
-}
+})
 
 export default ColorPicker

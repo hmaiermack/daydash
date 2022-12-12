@@ -18,7 +18,6 @@ const getTopOffset = (startOfEvent: Date, startOfDay: Date, steps: number): numb
 
     // toFixed rounds to two decimals but returns string so have to parse result
     const offset = parseFloat(((diffInMinutes / totalMinutesForDay) * 100).toFixed(2))
-    console.log(offset)
     return offset
 }
 
@@ -27,15 +26,14 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
     taskTitle: string;
     taskStart: Date;
     taskEnd: Date;
-    tagId?: string | undefined;
-    tagColorValue?: string | undefined;
-    tagName?: string | undefined;
+    tagId?: string | null;
+    tagColorValue?: string | null;
+    tagName?: string | null;
     steps: number;
     parentHeight: number;
     startHour: number
 }) => {
 
-    console.log(parentHeight)
     const date = new Date
 
     const handleClick = () => {
@@ -51,8 +49,10 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
     const minDivHeight = 2.08
 
     return (
-        <button key={taskId} className={`${date > taskEnd ? 'hover:saturate-150' : 'hover:saturate-150'} absolute w-[85%] bg-blue-300 z-50 flex flex-col overflow-auto rounded-sm`} style={{top: `${topOffset}%`, height: `${divHeight}px`}} onClick={() => handleClick}>
-                <span className=' block mt-1 ml-1 text-left font-light text-sm text-gray-700 leading-none'>{taskTitle}{divHeight > minDivHeight ? <br></br> : ''}{divHeight > minDivHeight ? `${format(taskStart, "h:mm")} - ${format(taskEnd, "hp")}` : `, ${format(taskStart, "h:mm")}`}</span>
+        <button key={taskId} className={`${date > taskEnd ? 'hover:saturate-150' : 'hover:saturate-150'} absolute w-[95%] ${tagColorValue ? '' : 'bg-blue-300'} z-50 flex flex-col overflow-auto rounded-sm`} style={{top: `${topOffset}%`, height: `${divHeight}px`, backgroundColor: tagColorValue ? tagColorValue : ''}} onClick={() => handleClick}>
+                <span className='absolute -top-1 text-center right-[2px] text-xs'>...</span>
+                <span className=' block mt-1 ml-1 text-left font-light text-xs text-gray-700 leading-none'>{taskTitle}{divHeight > minDivHeight ? <br></br> : ''}{divHeight > minDivHeight ? `${format(taskStart, "h:mm")} - ${format(taskEnd, "hp")}` : `, ${format(taskStart, "h:mm")}`}</span>
+                {tagName && <pre className='absolute text-[8px] bottom-[2px] right-[2px] px-[2px] rounded-sm border border-gray-400'>{tagName}</pre>}
         </button>
       )
     

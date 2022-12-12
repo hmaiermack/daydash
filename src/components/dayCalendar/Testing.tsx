@@ -1,11 +1,14 @@
 import React, { useMemo, useRef, useState } from 'react'
-import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSameHour, nextSaturday, previousSunday, startOfDay, isSameDay, eachHourOfInterval } from 'date-fns'
+import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSaturday, nextSaturday, previousSunday, startOfDay, isSameDay, eachHourOfInterval, isSunday } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Tag, Task } from '@prisma/client'
 import Day from './Day'
+import CreateModal from './CreateModal'
+import { CreateModalContext, CreateModalContextType } from '../../context/modalContext'
 
 
 const Testing = () => {
+    const {selectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
 
     //uid and tagid provided by user or tag
     type TimeRow = {
@@ -20,24 +23,30 @@ const Testing = () => {
       }
 
       const [date, setDate] = useState(new Date)
-      const weekStart = startOfDay(previousSunday(date))
-      const weekEnd = endOfDay(nextSaturday(date))        
+      const weekStart = isSunday(date)? startOfDay(date) : startOfDay(previousSunday(date))
+      const weekEnd = isSaturday(date) ? endOfDay(date) : endOfDay(nextSaturday(date))        
     
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {date}]);  
 
     const tableRows: TimeRow[] = []
-    const cols: Task[][] = []
+    const cols: (Task & {
+        tag: {
+            name: string;
+            colorHexValue: string;
+        } | null;
+    })[][] = []
     const [data, setData] = useState(() => [...cols])
     
     const days: Date[] = eachDayOfInterval({
       start: weekStart,
       end: weekEnd
-  })
+    })
+    console.log({tags: taskData?.tags})
+  console.log({days, weekEnd})
   let hours: Date[] = []
   if(taskData) {
     hours = eachHourOfInterval({start: addHours(weekStart, taskData?.timeRangeStart), end: addHours(weekStart, taskData?.timeRangeEnd - 1)})
   }
-  console.log({hours})
     useMemo(() => {
         if(taskData?.tasks != undefined) {
             //this is nasty
@@ -45,7 +54,12 @@ const Testing = () => {
             //alternatively could pass it thru tasks.task as an object {timeStart, timeEnd, tasks: [...]}?
                 let taskArr = taskData.tasks
                 days.forEach((day, idx) => {
-                    let temp: Task[] = []
+                    let temp: (Task & {
+                        tag: {
+                            name: string;
+                            colorHexValue: string;
+                        } | null;
+                    })[] = []
                     let tempArr = []
                     taskArr.forEach((task, index) => {
                         if(isSameDay(task!.timeStart, day) && task) {
@@ -90,6 +104,7 @@ const Testing = () => {
                 // day = addDays(day, 1)
             setData([...cols])
           }
+          console.log(cols)
     }, [taskData])
 
     const lastHour = hours[hours.length - 1]
@@ -99,15 +114,15 @@ const Testing = () => {
         <div></div>
             {days.map((day) => {
                 return (
-                    <div>{format(day, "eeee d")}</div>
+                    <div key={day.toDateString()}>{format(day, "eeee d")}</div>
                 )
             })}
             {taskData && 
                 <div className={`grid relative grid-cols-1 grid-rows-[${taskData?.timeRangeEnd - taskData?.timeRangeStart}]`}>
                     {hours && 
-                        hours.map((hour) => {
+                        hours.map((hour, idx) => {
                             return (
-                                <div className='relative'>
+                                <div key={`${hour.toDateString()} ${idx}`} className='relative'>
                                     <div className='text-gray-500 text-sm absolute top-[-11px]'>{format(hour, "h:mm aa")}</div>
                                     <span className='content-none h-[1px] absolute top-0 bg-gray-200 w-4 left-[85%] '></span>
                                 </div>
@@ -131,6 +146,9 @@ const Testing = () => {
                         <Day tasks={col} day={days[idx]} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} key={idx} />
                     )
                 })
+            }
+            {
+               selectedTime && taskData && taskData.timeRangeStart && taskData.timeRangeEnd && <CreateModal selectedTime={selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tags={taskData?.tags}/>
             }
      </div>
   )

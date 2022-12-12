@@ -55,6 +55,7 @@ model User {
     tasks Task[]
     habits Habit[]
     completedHabits CompletedHabit[]
+    tags Tag[]
 }
 
 model VerificationToken {
@@ -92,6 +93,10 @@ model Tag {
   name String @unique
 
   colorHexValue String @default("#5F5F5F")
+
+  user   User @relation(fields: [userId], references: [id])
+  userId String
+
 
   tasks Task[]
 
