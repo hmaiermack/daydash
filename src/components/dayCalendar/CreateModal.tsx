@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, Fragment, useState, useEffect } from 'react'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm, useFormState } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from "zod";
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
@@ -24,6 +24,7 @@ type Inputs = {
 }
 
 const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRangeEnd: number, timeRangeStart: number, selectedTime: Date, tags: Tag[]}) => {
+  const [isColorPickerDisabled, setIsColorPickerDisabled] = useState(false)
   const {isCreateModalOpen, setIsCreateModalOpen, setSelectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
   const schema = z.object({
         title: z.string().min(5, { message: "Must be 5 or more characters long" }),
@@ -80,7 +81,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
 
   
     
-    const { register, handleSubmit, watch, formState: { errors }, control, setValue } = useForm<Inputs>({
+    const { register, handleSubmit, watch, formState: { errors }, control, setValue, getValues } = useForm<Inputs>({
       defaultValues: {
         startTime: selectedTime,
         endTime: addMinutes(selectedTime, 30),
@@ -89,6 +90,18 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
       },
         resolver: zodResolver(schema)
     });
+
+    const tName = getValues("tagName")
+    useEffect(() => {
+      tags.forEach((tag: Tag) => {
+        if(tag.name === tName) {
+          setValue("tagColor", tag.colorHexValue)
+          setIsColorPickerDisabled(true)
+        } else {
+          setIsColorPickerDisabled(false)
+        }
+      })
+    }, [tName])
     const utils = trpc.useContext()
     const newTask = trpc.useMutation("tasks.new-task", {
         onSuccess(){
@@ -157,11 +170,12 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
                 >
                     Create a new Calendar Event
                 </Dialog.Title>
-                <form className='mt-4 p-4 flex flex-col items-center rounded bg-blue-200' onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className='mt-4 p-4 bg-blue-100 flex flex-col items-center rounded'>
                   <div className="flex flex-col w-full">
                     <div className='w-full mb-4'>
                       <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="title">Event Name</label>
-                      <input className={`appearance-none block w-full bg-white text-gray-900 font-medium ${errors.title ? 'outline-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("title")} placeholder="Your Event"/>
+                      <input className={`appearance-none block w-full bg-white text-gray-900 border border-gray-500 font-medium ${errors.title ? 'outline-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("title")} placeholder="Your Event"/>
                       {errors.title && <span className="text-red-500">{errors.title?.message}</span>}
                     </div>
                   <Controller
@@ -205,7 +219,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
                       <Disclosure>
                         {({ open }) => (
                           <>
-                          <Disclosure.Button className="flex w-full rounded-lg py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+                          <Disclosure.Button className="flex w-full rounded-lg border p-2 my-4 text-left text-sm font-medium bg-blue-100 text-blue-900 hover:bg-blue-300 focus:outline-none focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
                             <span>Add a tag to your event</span>
                             <ChevronUpIcon
                               className={`${open ? 'transform rotate-180' : ''} w-5 h-5 text-blue-500`}
@@ -221,7 +235,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
                             <Controller 
                               name="tagColor"
                               control={control}
-                              render={({ field }) => <ColorPicker {...field} />}
+                              render={({ field }) => <ColorPicker {...field} disabled={isColorPickerDisabled} />}
                             />
                             {errors.tagColor && <span className='text-red-500'>{errors.tagColor?.message}</span>}
                           </Disclosure.Panel>
@@ -231,7 +245,8 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
                     </div>
 
                   </div>
-                  <div className='flex justify-between'>
+                  </div>
+                  <div className='flex w-full justify-between mt-4'>
                       <button type='button'
                               className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                               onClick={() => setIsCreateModalOpen(false)}
@@ -243,12 +258,11 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
                           type="submit"
                           className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                           >
-                          Got it, thanks!
+                          Create new Event
                           </button>
                   </div>
+
                 </form> 
-                <div className="mt-4">
-                </div>
                 </Dialog.Panel>
             </Transition.Child>
             </div>
