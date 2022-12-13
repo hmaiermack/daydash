@@ -92,7 +92,7 @@ model Tag {
 
   name String @unique
 
-  colorHexValue String @default("#5F5F5F")
+  colorHexValue String @default("#5F5F5F") @unique
 
   user   User @relation(fields: [userId], references: [id])
   userId String

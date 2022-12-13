@@ -25,8 +25,6 @@ type Inputs = {
 
 const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRangeEnd: number, timeRangeStart: number, selectedTime: Date, tags: Tag[]}) => {
   const {isCreateModalOpen, setIsCreateModalOpen, setSelectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
-  const tagNames = tags ? tags.map(tag => tag.name) : ['']
-  const [selectedTagName, setSelectedTagName] = useState(tags[0])
   const schema = z.object({
         title: z.string().min(5, { message: "Must be 5 or more characters long" }),
         startTime: z.date(),
@@ -107,7 +105,9 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
     }
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
 
-      await newTask.mutateAsync({
+      //if tag name and tag color are both present, create task with tag
+      data.tagName && data.tagColor
+      ? await newTask.mutateAsync({
         title: data.title,
         timeStart: data.startTime,
         timeEnd: data.endTime,
@@ -115,6 +115,11 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
           name: data.tagName,
           colorHexValue: data.tagColor
         }
+      })
+      : await newTask.mutateAsync({
+        title: data.title,
+        timeStart: data.startTime,
+        timeEnd: data.endTime,
       })
     }  
 
