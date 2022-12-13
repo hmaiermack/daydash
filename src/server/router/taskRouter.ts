@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createRouter } from "./context";
-import { endOfDay, format, nextSaturday, previousSunday, startOfDay } from 'date-fns'
+import { areIntervalsOverlapping, endOfDay, format, nextSaturday, previousSunday, startOfDay } from 'date-fns'
 import { Tag, Task } from "@prisma/client";
 import { ProcessedEvent } from "@aldabil/react-scheduler/dist/types";
 
@@ -90,6 +90,19 @@ export const taskRouter = createRouter()
                         throw new TRPCError({message: "Tag already exists with a different color.", code: "CONFLICT"})
                     }
                 })
+
+                const tasks = await ctx.prisma.task.findMany({
+                    where: {
+                        userId: ctx.session?.user.id
+                    }
+                })
+
+                tasks.forEach((task: Task) => {
+                    if(areIntervalsOverlapping({start: input.timeStart, end: input.timeEnd}, {start: task.timeStart, end: task.timeEnd})) {
+                        throw new TRPCError({message: "Events are overlapping.", code: "CONFLICT"})
+                    }
+                    }
+                )
 
                 const task = await ctx.prisma.task.create({
                     data: {
