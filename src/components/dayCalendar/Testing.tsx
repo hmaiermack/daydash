@@ -10,25 +10,13 @@ import { CreateModalContext, CreateModalContextType } from '../../context/modalC
 const Testing = () => {
     const {selectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
 
-    //uid and tagid provided by user or tag
-    type TimeRow = {
-        time: string,
-        sunday: Task[],
-        monday: Task[],
-        tuesday: Task[],
-        wednesday: Task[],
-        thursday: Task[],
-        friday: Task[],
-        saturday: Task[],
-      }
-
       const [date, setDate] = useState(new Date)
       const weekStart = isSunday(date)? startOfDay(date) : startOfDay(previousSunday(date))
       const weekEnd = isSaturday(date) ? endOfDay(date) : endOfDay(nextSaturday(date))        
     
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {date}]);  
 
-    const tableRows: TimeRow[] = []
+    // task object has an optional tag property
     const cols: (Task & {
         tag: {
             name: string;
@@ -60,7 +48,6 @@ const Testing = () => {
                             colorHexValue: string;
                         } | null;
                     })[] = []
-                    let tempArr = []
                     taskArr.forEach((task, index) => {
                         if(isSameDay(task!.timeStart, day) && task) {
                             temp = [...temp, task]
@@ -68,40 +55,6 @@ const Testing = () => {
                     })
                     cols[idx] = temp
                 })
-                // const tempRowObject: { 
-                //   'sunday'?: any,
-                //   'monday'?: any,
-                //   'tuesday'?: any,
-                //   'wednesday'?: any,
-                //   'thursday'?: any,
-                //   'friday'?: any,
-                //   'saturday'?: any,
-                //   time: string
-                //  } = { time: ''}
-                // const tempRowObject: any = {time: ''}
-                // const hourString = addHours(day, i)
-                // days.forEach(day => {
-                //     const hour = addHours(day, i)
-                //     let temp: StrippedTask[] = []
-                //     if(!taskData.tasks) return
-                //     taskData.tasks.forEach(task => {
-                //       if(task.timeStart && isSameHour(task!.timeEnd, hour) && isSameDay(task!.timeStart, day)){
-                //       temp!.push(task)
-                //       }
-                //     })
-                //     //below should be working, don;t know why it isnt
-                //     // const task = taskData.find(task => {
-                //     //     isSameHour(task.timeStart, hour)
-                //     // })
-                //     if(temp !== undefined) {
-                //         tempRowObject[format(day, "EEEE").toLowerCase()] = temp
-                //     } else {
-                //         tempRowObject[format(day, "EEEE")] = undefined
-                //     }
-                // })
-                // tempRowObject.time = format(hourString, "h:mm aa")
-                // tableRows.push(tempRowObject)
-                // day = addDays(day, 1)
             setData([...cols])
           }
           console.log(cols)
