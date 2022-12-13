@@ -75,8 +75,22 @@ export const taskRouter = createRouter()
             }).optional()
         }),
         async resolve ({input, ctx}) {
-            if (input.tag && input.tag.colorHexValue && input.tag.name) {
+
+            if (input.tag && input.tag.colorHexValue && input.tag.name && ctx?.session?.user.id) {
                 console.log("inside new task with tag")
+                const tags = await ctx.prisma.tag.findMany({
+                    where: {
+                        userId: ctx.session?.user.id
+                    }
+                })
+                
+                //MAKE SURE TAG DOESN'T ALREADY EXIST WITH A DIFFERENT COLOR
+                tags.forEach((tag: Tag) => {
+                    if (tag.name === input!.tag!.name && tag.colorHexValue != input!.tag!.colorHexValue) {
+                        throw new TRPCError({message: "Tag already exists with a different color.", code: "CONFLICT"})
+                    }
+                })
+
                 const task = await ctx.prisma.task.create({
                     data: {
                         user: {
@@ -90,7 +104,11 @@ export const taskRouter = createRouter()
                         tag: {
                             connectOrCreate: {
                                 where: {
-                                    name: input.tag.name
+                                    userTag: {
+                                        userId: ctx.session?.user.id,
+                                        name: input.tag.name,
+                                        colorHexValue: input.tag.colorHexValue
+                                    }
                                 },
                                 create: {
                                     name: input.tag.name,
@@ -108,45 +126,22 @@ export const taskRouter = createRouter()
                         tag: true
                     }
                 })
-                const e = {
-                    event_id: task.id,
-                    title: task.title,
-                    start: task.timeStart,
-                    end: task.timeEnd,
-                    tagInfo: {
-                        id: task.tag?.id,
-                        name: task.tag?.name,
-                        color: task.tag?.colorHexValue
+                return task
+            }   else {
+                const task = await ctx.prisma.task.create({
+                    data: {
+                        user: {
+                            connect: {
+                                id: ctx.session?.user.id
+                            }
+                        },
+                        title: input.title,
+                        timeStart: input.timeStart,
+                        timeEnd: input.timeEnd
                     }
-                }
-
-                return e
-            }   
-
-            console.log("new task without tag")
-            
-            const task = await ctx.prisma.task.create({
-                data: {
-                    user: {
-                        connect: {
-                            id: ctx.session?.user.id
-                        }
-                    },
-                    title: input.title,
-                    timeStart: input.timeStart,
-                    timeEnd: input.timeEnd
-                }
-            })
-
-            const e = {
-                event_id: task.id,
-                title: task.title,
-                start: task.timeStart,
-                end: task.timeEnd,
-            }
-
-            return e
-
+                })
+                return task
+            }            
         }
     })
     .mutation("update-task", {
