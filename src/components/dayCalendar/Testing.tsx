@@ -101,7 +101,7 @@ const Testing = () => {
                 })
             }
             {
-               selectedTime && taskData && taskData.timeRangeStart && taskData.timeRangeEnd && <CreateModal selectedTime={selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tags={taskData.tags}/>
+               selectedTime && taskData && taskData.timeRangeStart && taskData.timeRangeEnd && <CreateModal selectedTime={selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
             }
      </div>
   )

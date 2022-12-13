@@ -6,13 +6,13 @@ import { z } from "zod";
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { TextField } from '@mui/material';
-import { addHours, addMinutes, isAfter, isBefore, startOfDay } from 'date-fns';
+import { addHours, addMinutes, areIntervalsOverlapping, isAfter, isBefore, startOfDay } from 'date-fns';
 import { trpc } from '../../utils/trpc';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import ColorPicker from './ColorPicker';
 import TagNameCombobox from './TagNameCombobox';
 import { CreateModalContext, CreateModalContextType } from '../../context/modalContext';
-import { Tag } from '@prisma/client';
+import { Tag, Task } from '@prisma/client';
 
 
 type Inputs = {
@@ -23,7 +23,7 @@ type Inputs = {
     tagName: string
 }
 
-const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRangeEnd: number, timeRangeStart: number, selectedTime: Date, tags: Tag[]}) => {
+const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: {timeRangeEnd: number, timeRangeStart: number, selectedTime: Date, tags: Tag[], tasks: Task[]}) => {
   const [isColorPickerDisabled, setIsColorPickerDisabled] = useState(false)
   const {isCreateModalOpen, setIsCreateModalOpen, setSelectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
   const schema = z.object({
@@ -33,6 +33,23 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
         tagColor: z.string().optional().nullable(),
         tagName: z.string().max(10, {message: 'Tag name must be 10 characters or less'}).optional().nullable()
     }).superRefine((val, ctx) => {
+      tasks.forEach((task: Task) => {
+        if(areIntervalsOverlapping({start: val.startTime, end: val.endTime}, {start: task.timeStart, end: task.timeEnd})) {
+          if(isAfter(val.startTime, task.timeStart)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'You already have an event scheduled at this time',
+            path: ['startTime']
+          })}
+          if(isBefore(val.endTime, task.timeEnd)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'You already have an event scheduled at this time',
+            path: ['endTime']
+          })}
+        }
+      })
+
       if (val.endTime < val.startTime) {
         ctx.addIssue({ 
           code: z.ZodIssueCode.custom,
@@ -41,7 +58,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
         )
       }
 
-      if(isAfter(val.endTime, addHours(startOfDay(selectedTime), timeRangeEnd))) {
+      if(isAfter(val.endTime, addHours(startOfDay(val.endTime), timeRangeEnd))) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Your daily schedule doesnt even go that late!',
@@ -111,7 +128,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags}: {timeRa
         }
     })
 
-    console.log(watch())
+    console.log(errors)
     const handleClose = () => {
       setIsCreateModalOpen(false)
       setSelectedTime(null)
