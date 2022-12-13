@@ -3,7 +3,6 @@ import { z } from "zod";
 import { createRouter } from "./context";
 import { areIntervalsOverlapping, endOfDay, format, nextSaturday, previousSunday, startOfDay } from 'date-fns'
 import { Tag, Task } from "@prisma/client";
-import { ProcessedEvent } from "@aldabil/react-scheduler/dist/types";
 
 export const taskRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
@@ -12,14 +11,6 @@ export const taskRouter = createRouter()
         }
         return next()
     })
-
-    /*
-    interface CalendarEvent {
-    event_id: number | string;
-    title: string;
-    start: Date;
-    end: Date;
-    */
     .query("tasks", {
         input: z.object({
             date: z.date()
