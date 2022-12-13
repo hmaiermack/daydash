@@ -91,11 +91,14 @@ export const taskRouter = createRouter()
                     }
                 })
 
+                // Ensure events aren't overlapping
+                // this is a very inefficient way to do this, but it works for now
                 const tasks = await ctx.prisma.task.findMany({
                     where: {
                         userId: ctx.session?.user.id
                     }
                 })
+
 
                 tasks.forEach((task: Task) => {
                     if(areIntervalsOverlapping({start: input.timeStart, end: input.timeEnd}, {start: task.timeStart, end: task.timeEnd})) {

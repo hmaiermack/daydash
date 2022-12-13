@@ -65,7 +65,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
           path: ['endTime']
         })}
 
-      if(isBefore(val.startTime, addHours(startOfDay(selectedTime), timeRangeStart))) {
+      if(isBefore(val.startTime, new Date)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Why are you scheduling an event in the past?',
@@ -188,7 +188,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                     Create a new Calendar Event
                 </Dialog.Title>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <div className='mt-4 p-4 bg-blue-100 flex flex-col items-center rounded'>
+                  <div className='mt-4 pt-4 px-4 bg-blue-100 flex flex-col items-center rounded'>
                   <div className="flex flex-col w-full">
                     <div className='w-full mb-4'>
                       <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="title">Event Name</label>
@@ -242,6 +242,14 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                               className={`${open ? 'transform rotate-180' : ''} w-5 h-5 text-blue-500`}
                             />
                           </Disclosure.Button>
+                          <Transition
+                            enter="transition duration-100 ease-out"
+                            enterFrom='transform scale-95 opacity-0'
+                            enterTo='transform scale-100 opacity-100'
+                            leave="transition duration-75 ease-out"
+                            leaveFrom='transform scale-100 opacity-100'
+                            leaveTo='transform scale-95 opacity-0'
+                          >
                           <Disclosure.Panel>
                             <Controller
                               name="tagName"
@@ -256,6 +264,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                             />
                             {errors.tagColor && <span className='text-red-500'>{errors.tagColor?.message}</span>}
                           </Disclosure.Panel>
+                          </Transition>
                           </>
                         )}
                       </Disclosure>
