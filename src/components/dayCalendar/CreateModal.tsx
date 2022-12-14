@@ -128,7 +128,6 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
         }
     })
 
-    console.log(errors)
     const handleClose = () => {
       setIsCreateModalOpen(false)
       setSelectedTime(null)

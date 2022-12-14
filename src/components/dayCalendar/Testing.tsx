@@ -29,8 +29,6 @@ const Testing = () => {
       start: weekStart,
       end: weekEnd
     })
-    console.log({tags: taskData?.tags})
-  console.log({days, weekEnd})
   let hours: Date[] = []
   if(taskData) {
     hours = eachHourOfInterval({start: addHours(weekStart, taskData?.timeRangeStart), end: addHours(weekStart, taskData?.timeRangeEnd - 1)})
@@ -57,7 +55,6 @@ const Testing = () => {
                 })
             setData([...cols])
           }
-          console.log(cols)
     }, [taskData])
 
     const lastHour = hours[hours.length - 1]

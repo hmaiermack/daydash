@@ -10,7 +10,6 @@ const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & 
         "#ffeb3b", "#ffc107", "#ff9800", "#ff5722",
      ]
     const [inputString, setInputString] = useState(props.value ? props.value : '')
-    console.log('first')
   return (
     <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable disabled={props.disabled}>
         {({open}) => (
