@@ -13,10 +13,11 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {
         } | null;})[], 
     timeRangeStart: number, timeRangeEnd: number, day: Date | undefined}) => {
     const [height, setHeight] = useState<number>(0)
+    const [leftOffset, setLeftOffset] = useState<number>(0)
     const dayRef = useRef<HTMLDivElement>(null)
-    console.log(tasks)
     useEffect(() => {
         setHeight(dayRef.current!.offsetHeight)
+        setLeftOffset(dayRef.current!.offsetLeft)
     }, [])
     
     const hourMarkers = []
@@ -42,7 +43,7 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {
             <span className='content-none h-[1px] absolute bottom-0 bg-gray-200 w-full'></span>
             {   height != 0 &&
                 tasks.map((task) => {
-                    return <Event key={task.id} tagId={task.tag ? task.tagId : null} tagColorValue={task.tag ? task.tag.colorHexValue: null} tagName={task.tag ? task.tag.name : null}  taskId={task.id} taskTitle={task.title} taskStart={task.timeStart} taskEnd={task.timeEnd} steps={steps} startHour={timeRangeStart} parentHeight={height}/>
+                    return <Event key={task.id} tagId={task.tag ? task.tagId : null} tagColorValue={task.tag ? task.tag.colorHexValue: null} tagName={task.tag ? task.tag.name : null}  taskId={task.id} taskTitle={task.title} taskStart={task.timeStart} taskEnd={task.timeEnd} steps={steps} startHour={timeRangeStart} parentHeight={height} parentLeftOffset={leftOffset}/>
                 })
             }
         </div>
