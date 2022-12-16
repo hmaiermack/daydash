@@ -1,6 +1,7 @@
 import { addHours, differenceInMinutes, format, startOfDay, startOfHour } from 'date-fns';
 import React, { useContext, useEffect, useRef } from 'react'
-import { EventInteractionModalContext, EventInteractionModalContextType } from '../../context/EventInteractionModalContext';
+import { EventInteractionModalContext } from '../../context/EventInteractionModalContext';
+import determineTextColor from '../../utils/determineTextColor';
 
 const getEventHeight = (parentHeight: number, steps: number, lengthOfEventInMins: number): number => {
     const totalMinutesForDay = steps * 60
@@ -22,7 +23,7 @@ const getTopOffset = (startOfEvent: Date, startOfDay: Date, steps: number): numb
     return offset
 }
 
-export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorValue, tagName, steps, parentHeight, startHour, parentLeftOffset}: {
+export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorValue, tagName, steps, parentHeight, parentWidth, startHour, parentLeftOffset, colIdx}: {
     taskId: string;
     taskTitle: string;
     taskStart: Date;
@@ -32,12 +33,14 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
     tagName?: string | null;
     steps: number;
     parentHeight: number;
+    parentWidth: number;
     parentLeftOffset: number;
+    colIdx: number;
     startHour: number
 }) => {
 
     const ref = useRef<HTMLButtonElement>(null)
-    const { setReferenceLeftOffset, setReferenceTopOffset, setIsEventInteractionModalOpen } = useContext(EventInteractionModalContext) as EventInteractionModalContextType
+    const { state, dispatch } = useContext(EventInteractionModalContext)
 
     const date = new Date
 
@@ -48,24 +51,48 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
     const start = addHours(startOfDay(taskStart), startHour)
     const topOffset = getTopOffset(taskStart, start, steps)
     //min height to fit title and time on two lines
-    const minDivHeight = 2.08
+    const minDivHeight = 40
 
-    console.log({ref: ref.current})
+    const textColor = tagColorValue ? determineTextColor(tagColorValue) : 'black'
 
     const handleClick = () => {
         if(ref.current){
-            //get left offset position of parent day column and top offset from event
-            setReferenceLeftOffset(parentLeftOffset)
-            setReferenceTopOffset(ref.current.offsetTop)
-            setIsEventInteractionModalOpen(true)
+            tagColorValue && tagName ?
+            dispatch({type: "openModal", payload: {
+                isEventInteractionModalOpen: true,
+                referenceTopOffset: ref.current.offsetTop,
+                calendarHeight: parentHeight,
+                referenceLeftOffset: parentLeftOffset,
+                columnIdx: colIdx,
+                referenceWidth: parentWidth,
+                eventTitle: taskTitle,
+                eventStart: taskStart,
+                eventEnd: taskEnd,
+                eventId: taskId,
+                eventTagName: tagName,
+                eventTagColor: tagColorValue
+            }}) :
+            dispatch({type: "openModal", payload: {
+                isEventInteractionModalOpen: true,
+                referenceTopOffset: ref.current.offsetTop,
+                calendarHeight: parentHeight,
+                referenceLeftOffset: parentLeftOffset,
+                columnIdx: colIdx,
+                referenceWidth: parentWidth,
+                eventTitle: taskTitle,
+                eventStart: taskStart,
+                eventEnd: taskEnd,
+                eventId: taskId,
+            }})
         }
     }
 
     return (
-        <button key={taskId} ref={ref} className={`${date > taskEnd ? 'hover:saturate-150' : 'hover:saturate-150'} absolute w-[95%] ${tagColorValue ? '' : 'bg-blue-300'} z-50 flex flex-col overflow-auto rounded-sm`} style={{top: `${topOffset}%`, height: `${divHeight}px`, backgroundColor: tagColorValue ? tagColorValue : ''}} onClick={handleClick}>
-                <span className='absolute -top-1 text-center right-[2px] text-xs'>...</span>
-                <span className=' block mt-1 ml-1 text-left font-light text-xs text-gray-700 leading-none'>{taskTitle}{divHeight > minDivHeight ? <br></br> : ''}{divHeight > minDivHeight ? `${format(taskStart, "h:mm")} - ${format(taskEnd, "hp")}` : `, ${format(taskStart, "h:mm")}`}</span>
-                {tagName && <pre className='absolute text-[8px] bottom-[2px] right-[2px] px-[2px] rounded-sm border border-gray-400'>{tagName}</pre>}
+        <button key={taskId} ref={ref} className={`${date > taskEnd ? 'hover:saturate-150 opacity-25' : 'hover:saturate-150'} absolute w-[95%] ${tagColorValue ? '' : 'bg-blue-300'} z-50 flex flex-col overflow-auto rounded-sm`} style={{top: `${topOffset}%`, height: `${divHeight}px`, backgroundColor: tagColorValue ? tagColorValue : ''}} onClick={handleClick}>
+                <span className={`block mt-1 ml-1 text-left font-light text-xs text-${textColor} leading-none`}>
+                    {taskTitle}{divHeight > minDivHeight/2 ? <br></br> : ''}{divHeight > minDivHeight ? `${format(taskStart, "h:mm")} - ${format(taskEnd, "hp")}` : ` ${format(taskStart, "h:mm a")}`}
+                </span>
+                {tagName && <pre className={`absolute text-[8px] text-${textColor} bottom-[2px] right-[2px] px-[2px] rounded-sm border border${textColor === "black" ? ' border-black' : "border-white"}`}>{tagName}</pre>}
         </button>
       )
     

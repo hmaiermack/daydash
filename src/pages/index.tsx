@@ -31,7 +31,6 @@ const Home: NextPage = () => {
         {/* {width && 
           <Table screenWidth={width}/>
         } */}
-        <EventInteractionModal />
         <Testing />
 
         <div className="w-full h-40 bg-green-400 mt-5"></div>

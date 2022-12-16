@@ -5,17 +5,19 @@ import CreateModal from './CreateModal';
 import { Event } from './Event';
 import HourMarker from './HourMarker';
 
-const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {
+const Day = ({tasks, timeRangeStart, timeRangeEnd, colIdx, day}: {
     tasks: (Task & {
         tag: {
             name: string;
             colorHexValue: string;
         } | null;})[], 
-    timeRangeStart: number, timeRangeEnd: number, day: Date | undefined}) => {
+    timeRangeStart: number, timeRangeEnd: number, colIdx: number, day: Date | undefined}) => {
     const [height, setHeight] = useState<number>(0)
     const [leftOffset, setLeftOffset] = useState<number>(0)
+    const [width, setWidth] = useState<number>(0)
     const dayRef = useRef<HTMLDivElement>(null)
     useEffect(() => {
+        setWidth(dayRef.current!.clientWidth)
         setHeight(dayRef.current!.offsetHeight)
         setLeftOffset(dayRef.current!.offsetLeft)
     }, [])
@@ -43,7 +45,7 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, day}: {
             <span className='content-none h-[1px] absolute bottom-0 bg-gray-200 w-full'></span>
             {   height != 0 &&
                 tasks.map((task) => {
-                    return <Event key={task.id} tagId={task.tag ? task.tagId : null} tagColorValue={task.tag ? task.tag.colorHexValue: null} tagName={task.tag ? task.tag.name : null}  taskId={task.id} taskTitle={task.title} taskStart={task.timeStart} taskEnd={task.timeEnd} steps={steps} startHour={timeRangeStart} parentHeight={height} parentLeftOffset={leftOffset}/>
+                    return <Event key={task.id} tagId={task.tag ? task.tagId : null} tagColorValue={task.tag ? task.tag.colorHexValue: null} tagName={task.tag ? task.tag.name : null}  taskId={task.id} taskTitle={task.title} taskStart={task.timeStart} taskEnd={task.timeEnd} steps={steps} startHour={timeRangeStart} parentHeight={height} parentWidth={width} parentLeftOffset={leftOffset} colIdx={colIdx}/>
                 })
             }
         </div>
