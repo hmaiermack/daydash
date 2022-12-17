@@ -108,17 +108,20 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
         resolver: zodResolver(schema)
     });
 
-    const tName = getValues("tagName")
+    const tName = watch("tagName")
+    console.log(tName)
     useEffect(() => {
-      tags.forEach((tag: Tag) => {
-        if(tag.name === tName) {
+      for(let tag of tags) {
+        if(tag.name.toLowerCase() === tName ? tName.toLowerCase() : '') {
           setValue("tagColor", tag.colorHexValue)
           setIsColorPickerDisabled(true)
+          break
         } else {
           setIsColorPickerDisabled(false)
         }
-      })
-    }, [tName])
+      }
+    }, [tName, tags, setValue])
+
     const utils = trpc.useContext()
     const newTask = trpc.useMutation("tasks.new-task", {
         onSuccess(){
@@ -150,6 +153,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
         timeEnd: data.endTime,
       })
     }  
+    console.log(isColorPickerDisabled)
 
   return (
   <>
