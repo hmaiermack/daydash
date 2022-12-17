@@ -16,7 +16,6 @@ const HourMarker = ({timeAndDate}: {timeAndDate: Date}) => {
     <div className='relative hover:bg-slate-100 hover:cursor-pointer' onClick={handleClick}>
         <span className='content-none h-[1px] absolute top-0 left-0 bg-gray-200 w-full '></span>
     </div>
-
   )
 }
 

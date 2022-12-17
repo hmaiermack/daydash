@@ -6,23 +6,26 @@ import { Controller, useForm } from "react-hook-form";
 import { CreateModalProvider } from "../context/modalContext";
 import { EventInteractionModalProvider } from "../context/EventInteractionModalContext";
 import CalendarContainer from "../components/dayCalendar/CalendarContainer";
+import { CalendarContextProvider } from "../context/CalendarContext";
 
 
 
 
 const Home: NextPage = () => {
   return (
-    <CreateModalProvider>
-      <EventInteractionModalProvider>
+    <CalendarContextProvider>
+      <CreateModalProvider>
+        <EventInteractionModalProvider>
 
-        <div>
-          <button onClick={()=> signIn()} className="mx-4">Sign in</button>
-        <CalendarContainer />
+          <div>
+            <button onClick={()=> signIn()} className="mx-4">Sign in</button>
+          <CalendarContainer />
 
-        <div className="w-full h-40 bg-green-400 mt-5"></div>
-        </div>
-      </EventInteractionModalProvider>
-    </CreateModalProvider>
+          <div className="w-full h-40 bg-green-400 mt-5"></div>
+          </div>
+        </EventInteractionModalProvider>
+      </CreateModalProvider>
+    </CalendarContextProvider>
   );
 };
 

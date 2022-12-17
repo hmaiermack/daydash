@@ -34,7 +34,6 @@ const initialState: ReducerState = {
     eventTagColor: undefined
 }
 
-//why is code unreachable?
 function reducer(state: typeof initialState, action: ReducerAction): ReducerState {
     switch (action.type) {
         case 'openModal':
@@ -58,19 +57,6 @@ export const EventInteractionModalContext = createContext<{state: ReducerState, 
 
 export const EventInteractionModalProvider = ({ children }: { children: React.ReactNode }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
-    const [isEventInteractionModalOpen, setIsEventInteractionModalOpen] = React.useState(false)
-    const [referenceTopOffset, setReferenceTopOffset] = React.useState(0)
-    const [referenceLeftOffset, setReferenceLeftOffset] = React.useState(0)
-    const [referenceHeight, setReferenceHeight] = React.useState(0)
-        {/*
-        {
-                    isEventInteractionModalOpen, setIsEventInteractionModalOpen, 
-                    referenceLeftOffset, setReferenceLeftOffset, 
-                    referenceTopOffset, setReferenceTopOffset,
-                    referenceHeight, setReferenceHeight
-                }
-        */}
-
     return (
         <EventInteractionModalContext.Provider value={{state, dispatch}}>
             {children}

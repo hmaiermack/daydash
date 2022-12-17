@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react'
-import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSaturday, nextSaturday, previousSunday, startOfDay, isSameDay, eachHourOfInterval, isSunday } from 'date-fns'
+import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSaturday, nextSaturday, previousSunday, startOfDay, isSameDay, eachHourOfInterval, isSunday, subDays } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Tag, Task } from '@prisma/client'
 import Day from './Day'
@@ -7,20 +7,17 @@ import CreateModal from './CreateModal'
 import { CreateModalContext, CreateModalContextType } from '../../context/modalContext'
 import EventInteractionModal from './EventInteractionModal'
 import { EventInteractionModalContext } from '../../context/EventInteractionModalContext'
+import { CalendarContext } from '../../context/CalendarContext'
 
 
 const CalendarContainer = () => {
     const {selectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
-    const { state } = React.useContext(EventInteractionModalContext)
-
-    const [startDate, setStartDate] = useState(() => isSunday(new Date)? startOfDay(new Date) : startOfDay(previousSunday(new Date)))
-    const [endDate, setEndDate] = useState(() => isSaturday(new Date) ? endOfDay(new Date) : endOfDay(nextSaturday(new Date)))
-
+    const { state: EventInteractionState } = React.useContext(EventInteractionModalContext)
+    const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
 
     
-    const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {startDate, endDate}]);  
+    const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {startDate: CalendarState.dateRangeStart, endDate: CalendarState.dateRangeEnd}]);  
 
-    // task object has an optional tag property
     const cols: (Task & {
         tag: {
             name: string;
@@ -30,12 +27,12 @@ const CalendarContainer = () => {
     const [data, setData] = useState(() => [...cols])
     
     const days: Date[] = eachDayOfInterval({
-      start: startDate,
-      end: endDate
+      start: CalendarState.dateRangeStart,
+      end: CalendarState.dateRangeEnd
     })
   let hours: Date[] = []
   if(taskData) {
-    hours = eachHourOfInterval({start: addHours(startDate, taskData?.timeRangeStart), end: addHours(startDate, taskData?.timeRangeEnd - 1)})
+    hours = eachHourOfInterval({start: addHours(CalendarState.dateRangeStart, taskData?.timeRangeStart), end: addHours(CalendarState.dateRangeStart, taskData?.timeRangeEnd - 1)})
   }
     useMemo(() => {
         if(taskData?.tasks != undefined) {
@@ -64,11 +61,77 @@ const CalendarContainer = () => {
 
     const lastHour = hours[hours.length - 1]
 
+    const handleMoveTimeForward = () => {
+        switch (CalendarState.display) {
+            case 'week':
+                dispatch({
+                    type: 'moveTimeForward',
+                    payload: {
+                        dateRangeStart: addDays(CalendarState.dateRangeStart, 7),
+                        dateRangeEnd: addDays(CalendarState.dateRangeEnd, 7),
+                    }
+                });
+                break;
+            case 'one':
+                dispatch({
+                    type: 'moveTimeForward',
+                    payload: {
+                        dateRangeStart: addDays(CalendarState.dateRangeStart, 1),
+                        dateRangeEnd: addDays(CalendarState.dateRangeEnd, 1),
+                    }
+                });
+                break;
+            case 'three':
+                dispatch({
+                    type: 'moveTimeForward',
+                    payload: {
+                        dateRangeStart: addDays(CalendarState.dateRangeStart, 3),
+                        dateRangeEnd: addDays(CalendarState.dateRangeEnd, 3),
+                    }
+                });
+                break;
+            }
+        }
+
+const handleMoveTimeBackward = () => {
+    switch (CalendarState.display) {
+        case 'week':
+            dispatch({
+                type: 'moveTimeBackward',
+                payload: {
+                    dateRangeStart: subDays(CalendarState.dateRangeStart, 7),
+                    dateRangeEnd: subDays(CalendarState.dateRangeEnd, 7),
+                }
+            });
+            break;
+        case 'one':
+            dispatch({
+                type: 'moveTimeBackward',
+                payload: {
+                    dateRangeStart: subDays(CalendarState.dateRangeStart, 1),
+                    dateRangeEnd: subDays(CalendarState.dateRangeEnd, 1),
+                }
+            });
+            break;
+        case 'three':
+            dispatch({
+                type: 'moveTimeBackward',
+                payload: {
+                    dateRangeStart: subDays(CalendarState.dateRangeStart, 3),
+                    dateRangeEnd: subDays(CalendarState.dateRangeEnd, 3),
+                }
+            });
+        }
+        
+
+    }
+
+
   return (
     <>
-        {state.isEventInteractionModalOpen && <EventInteractionModal />}
-        <button onClick={() => {setStartDate(addDays(startDate, 7)); setEndDate(addDays(endDate, 7))}}>next week</button>
-        <button>last week</button>
+        {EventInteractionState.isEventInteractionModalOpen && <EventInteractionModal />}
+        <button className='bg-blue-200 p-4 mr-4' onClick={handleMoveTimeForward}>next week</button>
+        <button className='bg-blue-200 p-4 mr-4' onClick={handleMoveTimeBackward}>last week</button>
         <div className='grid min-h-[700px]' style={{gridTemplateColumns: "80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr", gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
@@ -107,7 +170,7 @@ const CalendarContainer = () => {
                     })
                 }
                 {
-                startDate && endDate && selectedTime && taskData && taskData.timeRangeStart && taskData.timeRangeEnd && <CreateModal selectedTime={selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
+                    selectedTime && taskData && <CreateModal selectedTime={selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
                 }
         </div>
      </>
