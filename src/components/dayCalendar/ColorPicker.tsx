@@ -2,6 +2,7 @@ import { Combobox } from '@headlessui/react'
 import React, { useState, FocusEvent } from 'react'
 import { ControllerRenderProps } from 'react-hook-form'
 
+//eslint-disable-next-line react/display-name
 const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & {disabled: boolean})>((props, ref) => {
     const colors = [
         "#f06292", "#f44336",  "#9c27b0", "#673ab7",
@@ -12,7 +13,6 @@ const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & 
     const [inputString, setInputString] = useState(props.value ? props.value : '')
     console.log(props.disabled)
   return (
-    // eslint-disable-next-line react/display-name
     <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable disabled={props.disabled}>
         {({open}) => (
             <div className='mt-4 pb-4' >
