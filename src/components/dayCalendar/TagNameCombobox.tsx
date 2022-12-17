@@ -5,11 +5,10 @@ import { trpc } from "../../utils/trpc";
 import { ControllerFieldState, ControllerRenderProps } from 'react-hook-form';
 import { Tag } from '@prisma/client';
 
-const TagNameCombobox = React.forwardRef<HTMLInputElement, (ControllerRenderProps)>((props, ref) => {
+const TagNameCombobox = React.forwardRef<HTMLInputElement, (ControllerRenderProps & {tags: Tag[]})>((props, ref) => {
     const [date, setDate] = useState(new Date)
     const [query, setQuery] = useState('')
-    const { isLoading, isError, data, error } = trpc.useQuery(["tasks.tasks", {date}]);  
-    const filteredTags = query === '' ? data?.tags : data?.tags.filter((tag) => tag.name.toLowerCase().includes(query.toLowerCase()))
+    const filteredTags = query === '' ? props.tags : props.tags.filter((tag) => tag.name.toLowerCase().includes(query.toLowerCase()))
   return (
     <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable>
         {({ open }) => (

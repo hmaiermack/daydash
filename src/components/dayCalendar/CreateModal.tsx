@@ -133,7 +133,6 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
       setSelectedTime(null)
     }
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
-
       //if tag name and tag color are both present, create task with tag
       data.tagName && data.tagColor
       ? await newTask.mutateAsync({
@@ -253,7 +252,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                             <Controller
                               name="tagName"
                               control={control}
-                              render={({ field }) => <TagNameCombobox {...field} />}
+                              render={({ field }) => <TagNameCombobox {...field} tags={tags} />}
                             />
                             {errors.tagName && <span className='text-red-500'>{errors.tagName?.message}</span>}
                             <Controller 

@@ -13,9 +13,12 @@ export const taskRouter = createRouter()
     })
     .query("tasks", {
         input: z.object({
-            date: z.date()
+            startDate: z.date(),
+            endDate: z.date()
         }),
-        async resolve({ ctx }) {
+        async resolve({ ctx, input }) {
+            const verifiedStart = typeof input.startDate === typeof Date ? input.startDate : new Date(input.startDate)
+            const verifiedEnd = typeof input.endDate === typeof Date ? input.endDate : new Date(input.endDate)
             const user = await ctx.prisma.user.findUnique({
                 where: {
                     id: ctx.session?.user.id
@@ -32,6 +35,12 @@ export const taskRouter = createRouter()
             const tasks = await ctx.prisma.task.findMany({
                 where: {
                     userId: ctx.session?.user.id,
+                    timeStart: {
+                        gte: verifiedStart,
+                    },
+                    timeEnd: {
+                        lte: verifiedEnd
+                    }
                 },
                 include: {
                     tag: {
