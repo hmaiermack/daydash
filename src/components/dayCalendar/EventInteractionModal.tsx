@@ -39,7 +39,7 @@ const EventInteractionModal = () => {
             setTopOffset(state.referenceTopOffset + 72) :
             setTopOffset(state.calendarHeight - diff)
         }
-    }, [ref])
+    }, [ref, state.calendarHeight, state.referenceTopOffset])
 
 
 

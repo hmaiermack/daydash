@@ -10,7 +10,9 @@ const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & 
         "#ffeb3b", "#ffc107", "#ff9800", "#ff5722",
      ]
     const [inputString, setInputString] = useState(props.value ? props.value : '')
+    console.log(props.disabled)
   return (
+    // eslint-disable-next-line react/display-name
     <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable disabled={props.disabled}>
         {({open}) => (
             <div className='mt-4 pb-4' >

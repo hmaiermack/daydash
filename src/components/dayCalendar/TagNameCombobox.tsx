@@ -10,6 +10,7 @@ const TagNameCombobox = React.forwardRef<HTMLInputElement, (ControllerRenderProp
     const [query, setQuery] = useState('')
     const filteredTags = query === '' ? props.tags : props.tags.filter((tag) => tag.name.toLowerCase().includes(query.toLowerCase()))
   return (
+    //eslint-disable-next-line
     <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable>
         {({ open }) => (
             <>

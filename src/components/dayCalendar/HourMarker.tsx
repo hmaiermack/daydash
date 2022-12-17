@@ -10,7 +10,7 @@ const HourMarker = ({timeAndDate}: {timeAndDate: Date}) => {
 
   useEffect(() => {
     setIsCreateModalOpen(true)
-  }, [selectedTime])
+  }, [selectedTime, setIsCreateModalOpen])
   
   return (
     <div className='relative hover:bg-slate-100 hover:cursor-pointer' onClick={handleClick}>

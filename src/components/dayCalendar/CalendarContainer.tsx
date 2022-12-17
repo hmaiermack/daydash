@@ -28,8 +28,6 @@ const CalendarContainer = () => {
         } | null;
     })[][] = []
     const [data, setData] = useState(() => [...cols])
-
-    console.log(error)
     
     const days: Date[] = eachDayOfInterval({
       start: startDate,
@@ -61,6 +59,7 @@ const CalendarContainer = () => {
                 })
             setData([...cols])
           }
+          //eslint-disable-next-line
     }, [taskData])
 
     const lastHour = hours[hours.length - 1]
