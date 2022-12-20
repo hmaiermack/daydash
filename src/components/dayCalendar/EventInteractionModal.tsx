@@ -1,6 +1,7 @@
 import { PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { addHours, differenceInMinutes, format, startOfDay, startOfHour } from 'date-fns';
-import React from 'react'
+import React, { useContext } from 'react'
+import { EditModalContext } from '../../context/EditModalContext';
 import determineTextColor from '../../utils/determineTextColor';
 import { trpc } from '../../utils/trpc';
 
@@ -19,6 +20,7 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
 }) => {
     const [hover, setHover] = React.useState(false)
     const [hovered, setHovered] = React.useState<1 | 2 | 3 | null>(null)
+    const { dispatch } = useContext(EditModalContext)
 
     const utils = trpc.useContext()
     const deleteTask = trpc.useMutation('tasks.delete-task', {
@@ -47,6 +49,29 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
         setIsModalOpen(false)
     }
 
+    const handleEdit = () => {
+        console.log(taskTitle)
+        tagColorValue && tagName ?
+        dispatch({type: 'openModal', payload: {
+            eventId: taskId,
+            eventTitle: taskTitle,
+            startTime: taskStart,
+            endTime: taskEnd,
+            tagColor: tagColorValue,
+            tagName: tagName,
+            isEditModalOpen: true,
+        }}) : 
+        dispatch({type: 'openModal', payload: {
+            eventId: taskId,
+            eventTitle: taskTitle,
+            startTime: taskStart,
+            endTime: taskEnd,
+            isEditModalOpen: true,
+        }})
+
+        setIsModalOpen(false)
+    }
+
 
     const leftOffset = colIdx >= 3 ? `-304%` : `100%`
     const modalTopOffset = topOffset < 75 ? topOffset : (topOffset - 15)
@@ -62,7 +87,7 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
                                         Edit event
                                     </div>
                                 }
-                                <PencilIcon className='text-gray-600 hover:text-white w-5 h-5'/>
+                                <PencilIcon className='text-gray-600 hover:text-white w-5 h-5' onClick={handleEdit}/>
                             </div>
                             <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(2)} onMouseLeave={() => handleHovered(null)}>
                                 <TrashIcon className='text-gray-600 hover:text-white w-5 h-5' onClick={handleDelete}/>

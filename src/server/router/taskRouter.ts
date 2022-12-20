@@ -168,7 +168,7 @@ export const taskRouter = createRouter()
             timeEnd: z.date().optional(),
             tag: z.object({
                 name: z.string(),
-                colorHexValue: z.string().optional()
+                colorHexValue: z.string()
             }).optional()
         }),
         async resolve({input, ctx}) {

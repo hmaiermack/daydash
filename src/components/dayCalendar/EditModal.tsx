@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import { Controller, SubmitHandler, useForm, useFormState } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,8 +11,8 @@ import { trpc } from '../../utils/trpc';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import ColorPicker from './ColorPicker';
 import TagNameCombobox from './TagNameCombobox';
-import { CreateModalContext } from '../../context/CreateModalContext';
 import { Tag, Task } from '@prisma/client';
+import { EditModalContext } from '../../context/EditModalContext';
 
 
 type Inputs = {
@@ -23,9 +23,9 @@ type Inputs = {
     tagName: string
 }
 
-const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: {timeRangeEnd: number, timeRangeStart: number, selectedTime: Date, tags: Tag[], tasks: Task[]}) => {
+const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: number, timeRangeStart: number, tags: Tag[], tasks: Task[]}) => {
   const [isColorPickerDisabled, setIsColorPickerDisabled] = useState(false)
-  const {state, dispatch} = React.useContext(CreateModalContext)
+  const {state, dispatch} = React.useContext(EditModalContext)
   const schema = z.object({
         title: z.string().min(5, { message: "Must be 5 or more characters long" }),
         startTime: z.date(),
@@ -100,18 +100,21 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
     
     const { register, handleSubmit, watch, formState: { errors }, control, setValue, getValues } = useForm<Inputs>({
       defaultValues: {
-        startTime: selectedTime,
-        endTime: addMinutes(selectedTime, 30),
-        tagName: '',
-        tagColor: ''
+        title: state.eventTitle,
+        startTime: state.startTime,
+        endTime: state.endTime,
+        tagName: state.tagName ? state.tagName : '',
+        tagColor: state.tagColor ? state.tagColor : ''
       },
         resolver: zodResolver(schema)
     });
 
     const tName = watch("tagName")
-    console.log(tName)
+    const form = watch()
+    console.log(form)
     useEffect(() => {
       for(let tag of tags) {
+        console.log({name: tag.name, length: tag.name.length})
         if(tag.name.toLowerCase() === tName ? tName.toLowerCase() : '') {
           setValue("tagColor", tag.colorHexValue)
           setIsColorPickerDisabled(true)
@@ -123,26 +126,35 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
     }, [tName, tags, setValue])
 
     const utils = trpc.useContext()
-    const newTask = trpc.useMutation("tasks.new-task", {
+    const editTask = trpc.useMutation("tasks.update-task", {
         onSuccess(){
             utils.invalidateQueries(['tasks.tasks'])
             dispatch({type: 'closeModal', payload: {
-              isModalOpen: false,
-              selectedTime: null
+                isEditModalOpen: false,
+                startTime: undefined,
+                endTime: undefined,
+                tagName: undefined,
+                tagColor: undefined
             }})
         }
     })
 
     const handleClose = () => {
-      dispatch({type: 'closeModal', payload: {
-        isModalOpen: false,
-        selectedTime: null
-      }})
-    }
+        dispatch({type: 'closeModal', payload: {
+            isEditModalOpen: false,
+            startTime: undefined,
+            endTime: undefined,
+            tagName: undefined,
+            tagColor: undefined
+        }})
+}
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
       //if tag name and tag color are both present, create task with tag
+      if(!state.eventId) return
+
       data.tagName && data.tagColor
-      ? await newTask.mutateAsync({
+      ? await editTask.mutateAsync({
+        taskId: state.eventId,
         title: data.title,
         timeStart: data.startTime,
         timeEnd: data.endTime,
@@ -151,7 +163,8 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
           colorHexValue: data.tagColor
         }
       })
-      : await newTask.mutateAsync({
+      : await editTask.mutateAsync({
+        taskId: state.eventId,
         title: data.title,
         timeStart: data.startTime,
         timeEnd: data.endTime,
@@ -161,7 +174,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
 
   return (
   <>
-    <Transition appear show={state.isModalOpen} as={Fragment}>
+    <Transition appear show={state.isEditModalOpen} as={Fragment}>
         <Dialog onClose={handleClose} className="relative z-50">
             {/* The backdrop, rendered as a fixed sibling to the panel container */}
             <Transition.Child
@@ -191,7 +204,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
                 >
-                    Create a new Calendar Event
+                    Edit {state.eventTitle}
                 </Dialog.Title>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className='mt-4 pt-4 px-4 bg-blue-100 flex flex-col items-center rounded'>
@@ -290,7 +303,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                           type="submit"
                           className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                           >
-                          Create new Event
+                          Update Event
                           </button>
                   </div>
 
@@ -305,4 +318,4 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
 
 )
 }
-export default CreateModal
+export default EditModal

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { CreateModalContext } from '../../context/modalContext';
+import { CreateModalContext } from '../../context/CreateModalContext';
 
 const HourMarker = ({timeAndDate}: {timeAndDate: Date}) => {
   const {state, dispatch} = React.useContext(CreateModalContext)
