@@ -241,6 +241,5 @@ export const taskRouter = createRouter()
                     id: input.taskId
                 }
             })
-            return ctx.res?.send({message: "Successfully deleted."})
         }
     })
