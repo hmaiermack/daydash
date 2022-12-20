@@ -1,16 +1,12 @@
 import React, { useEffect } from 'react'
-import { CreateModalContext, CreateModalContextType } from '../../context/modalContext';
+import { CreateModalContext } from '../../context/modalContext';
 
 const HourMarker = ({timeAndDate}: {timeAndDate: Date}) => {
-  const {setIsCreateModalOpen, setSelectedTime, selectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
+  const {state, dispatch} = React.useContext(CreateModalContext)
 
   const handleClick = () => {
-    setSelectedTime(timeAndDate)
+    dispatch({type: 'openModal', payload: {selectedTime: timeAndDate, isModalOpen: true}})
   }
-
-  useEffect(() => {
-    setIsCreateModalOpen(true)
-  }, [selectedTime, setIsCreateModalOpen])
   
   return (
     <div className='relative hover:bg-slate-100 hover:cursor-pointer' onClick={handleClick}>

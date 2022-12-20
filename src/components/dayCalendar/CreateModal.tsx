@@ -11,7 +11,7 @@ import { trpc } from '../../utils/trpc';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import ColorPicker from './ColorPicker';
 import TagNameCombobox from './TagNameCombobox';
-import { CreateModalContext, CreateModalContextType } from '../../context/modalContext';
+import { CreateModalContext } from '../../context/modalContext';
 import { Tag, Task } from '@prisma/client';
 
 
@@ -25,7 +25,7 @@ type Inputs = {
 
 const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: {timeRangeEnd: number, timeRangeStart: number, selectedTime: Date, tags: Tag[], tasks: Task[]}) => {
   const [isColorPickerDisabled, setIsColorPickerDisabled] = useState(false)
-  const {isCreateModalOpen, setIsCreateModalOpen, setSelectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
+  const {state, dispatch} = React.useContext(CreateModalContext)
   const schema = z.object({
         title: z.string().min(5, { message: "Must be 5 or more characters long" }),
         startTime: z.date(),
@@ -126,14 +126,18 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
     const newTask = trpc.useMutation("tasks.new-task", {
         onSuccess(){
             utils.invalidateQueries(['tasks.tasks'])
-            setSelectedTime(null)
-            setIsCreateModalOpen(false)
+            dispatch({type: 'closeModal', payload: {
+              isModalOpen: false,
+              selectedTime: null
+            }})
         }
     })
 
     const handleClose = () => {
-      setIsCreateModalOpen(false)
-      setSelectedTime(null)
+      dispatch({type: 'closeModal', payload: {
+        isModalOpen: false,
+        selectedTime: null
+      }})
     }
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
       //if tag name and tag color are both present, create task with tag
@@ -157,7 +161,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
 
   return (
   <>
-    <Transition appear show={isCreateModalOpen} as={Fragment}>
+    <Transition appear show={state.isModalOpen} as={Fragment}>
         <Dialog onClose={handleClose} className="relative z-50">
             {/* The backdrop, rendered as a fixed sibling to the panel container */}
             <Transition.Child
@@ -277,7 +281,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                   <div className='flex w-full justify-between mt-4'>
                       <button type='button'
                               className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                              onClick={() => setIsCreateModalOpen(false)}
+                              onClick={handleClose}
                                       
                       >
                           Cancel

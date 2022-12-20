@@ -4,12 +4,12 @@ import { trpc } from '../../utils/trpc'
 import { Task } from '@prisma/client'
 import Day from './Day'
 import CreateModal from './CreateModal'
-import { CreateModalContext, CreateModalContextType } from '../../context/modalContext'
+import { CreateModalContext } from '../../context/modalContext'
 import { CalendarContext } from '../../context/CalendarContext'
 
 
 const CalendarContainer = () => {
-    const {selectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
+    const {state: CreateModalState } = React.useContext(CreateModalContext)
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
 
 
@@ -167,7 +167,7 @@ const handleMoveTimeBackward = () => {
                     })
                 }
                 {
-                    selectedTime && taskData && <CreateModal selectedTime={selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
+                    CreateModalState.selectedTime && taskData && <CreateModal selectedTime={CreateModalState.selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
                 }
         </div>
      </>
