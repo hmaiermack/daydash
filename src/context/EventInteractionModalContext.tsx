@@ -3,7 +3,8 @@ import React, { createContext, useReducer } from 'react'
 type ReducerState = {
     isEventInteractionModalOpen: boolean;
     referenceTopOffset: number;
-    calendarHeight: number;
+    calendarHeight?: number;
+    modalBottomOffset?: number;
     referenceLeftOffset: number;
     columnIdx: number;
     referenceWidth: number;
@@ -18,11 +19,12 @@ type ReducerState = {
 type ReducerAction = 
     | { type: 'openModal', payload: ReducerState }
     | { type: 'closeModal' }
+    | { type: 'initializeHeight', payload: Pick<ReducerState, 'calendarHeight'>}
 
 const initialState: ReducerState = {
     isEventInteractionModalOpen: false,
     referenceTopOffset: 0,
-    calendarHeight: 0,
+    calendarHeight: 700,
     referenceLeftOffset: 0,
     columnIdx: 0,
     referenceWidth: 0,
@@ -44,6 +46,11 @@ function reducer(state: typeof initialState, action: ReducerAction): ReducerStat
         case 'closeModal':
             return {
                 ...initialState
+            }
+        case 'initializeHeight':
+            return {
+                ...state,
+                ...action.payload
             }
     }   
 }

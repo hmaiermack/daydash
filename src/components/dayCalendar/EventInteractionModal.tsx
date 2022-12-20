@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react'
 import { PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { format } from 'date-fns'
-import React, { useContext, useRef } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useRef } from 'react'
 import { EventInteractionModalContext } from '../../context/EventInteractionModalContext'
 import determineTextColor from '../../utils/determineTextColor'
 
@@ -9,11 +9,10 @@ const EventInteractionModal = () => {
     const { state, dispatch } = useContext(EventInteractionModalContext)
     const [hover, setHover] = React.useState(false)
     const [hovered, setHovered] = React.useState<1 | 2 | 3 | null>(null)
-    const [topOffset, setTopOffset] = React.useState(0)
+    const [isBottomAnchored, setIsBottomAnchored] = React.useState(false)
     const ref = useRef<HTMLDivElement>(null)
 
-    const color = state.eventTagColor
-
+console.log(state)
     const handleHover = async () => {
         if(!hover) {
             setTimeout(() => {
@@ -27,19 +26,14 @@ const EventInteractionModal = () => {
     }
 
     const handleHovered = (hovered: 1 | 2 | 3 | null) => {
-        setHovered(null)
         setHovered(hovered)
     }
     
-
-    React.useLayoutEffect(() => {
-        if(ref.current){
-            const diff = state.calendarHeight - state.referenceTopOffset
-            diff > ref.current.clientHeight ?
-            setTopOffset(state.referenceTopOffset + 72) :
-            setTopOffset(state.calendarHeight - diff)
-        }
-    }, [ref, state.calendarHeight, state.referenceTopOffset])
+    useLayoutEffect(() => {const diff = state.calendarHeight ? (state.calendarHeight - state.referenceTopOffset) : (700 - state.referenceTopOffset)
+    //136 is min height of interaction modal
+    diff > 136 ?
+    setIsBottomAnchored(false) :
+    setIsBottomAnchored(true)}, [])
 
 
 
@@ -51,14 +45,16 @@ const EventInteractionModal = () => {
     //this moves the left edge of the modal to the right edge of the event, we add 4px for a small gap
     const leftOffset = state.columnIdx >= 3 ? state.referenceLeftOffset - (3*state.referenceWidth) - 4 : state.referenceLeftOffset + state.referenceWidth + 4
 
-    
+    const positionObj: {top?: number, bottom?: number, left: number} = {left: leftOffset}
+
+    useLayoutEffect(()=>{isBottomAnchored ? positionObj['bottom'] = state.modalBottomOffset : positionObj['top'] = state.referenceTopOffset}, [isBottomAnchored])
+
   return (
     <>
-    {state.isEventInteractionModalOpen && 
         <Dialog open={state.isEventInteractionModalOpen} onClose={() => dispatch({type: "closeModal"})} className="z-[100] relative" >
             {/* Prevent opening createModal when clicking outside of EventInteractionModal w/ overlay */}
             <div className="fixed inset-0" />
-            <div className='fixed' style={{top: topOffset, left: leftOffset}}>
+            <div className='fixed' style={positionObj}>
                 <Dialog.Panel className="relative" >
                     <div className={`fixed flex-col rounded drop-shadow-2xl bg-white`} ref={ref} style={{width: state.referenceWidth * 3}}>
                         <div className='flex flex-grow justify-end'>
@@ -107,11 +103,8 @@ const EventInteractionModal = () => {
                         </div>
                     </div> 
                 </Dialog.Panel>
-            </div>
-    
+            </div>    
         </Dialog>
-    
-    }
   </>
   )
 }

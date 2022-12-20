@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { addDays, addHours, eachDayOfInterval, endOfDay, format, isSaturday, nextSaturday, previousSunday, startOfDay, isSameDay, eachHourOfInterval, isSunday, subDays } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Tag, Task } from '@prisma/client'
@@ -12,8 +12,23 @@ import { CalendarContext } from '../../context/CalendarContext'
 
 const CalendarContainer = () => {
     const {selectedTime} = React.useContext(CreateModalContext) as CreateModalContextType
-    const { state: EventInteractionState } = React.useContext(EventInteractionModalContext)
+    const { state: EventInteractionState, dispatch: eventInteractionDispatch } = React.useContext(EventInteractionModalContext)
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
+
+    const ref = useRef<HTMLDivElement | null>(null)
+
+    useEffect(() => {
+        if (ref.current) {
+            console.log(ref.current.clientHeight, ref.current.offsetHeight)
+            eventInteractionDispatch({
+                type: 'initializeHeight',
+                payload: {
+                    calendarHeight: ref.current.clientHeight,
+                }
+            })
+        }
+    }, [ref, eventInteractionDispatch])
+
 
     
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {startDate: CalendarState.dateRangeStart, endDate: CalendarState.dateRangeEnd}]);  
@@ -132,7 +147,7 @@ const handleMoveTimeBackward = () => {
         {EventInteractionState.isEventInteractionModalOpen && <EventInteractionModal />}
         <button className='bg-blue-200 p-4 mr-4' onClick={handleMoveTimeForward}>next week</button>
         <button className='bg-blue-200 p-4 mr-4' onClick={handleMoveTimeBackward}>last week</button>
-        <div className='grid min-h-[700px]' style={{gridTemplateColumns: "80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr", gridTemplateRows: "48px 1fr"}}>
+        <div className='grid min-h-[700px]' ref={ref} style={{gridTemplateColumns: "80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr", gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
                     return (
