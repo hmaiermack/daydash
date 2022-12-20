@@ -1,18 +1,31 @@
-import { Dialog } from '@headlessui/react'
-import { PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid'
-import { format } from 'date-fns'
-import React, { useContext, useEffect, useLayoutEffect, useRef } from 'react'
-import { EventInteractionModalContext } from '../../context/EventInteractionModalContext'
-import determineTextColor from '../../utils/determineTextColor'
+import { PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { addHours, differenceInMinutes, format, startOfDay, startOfHour } from 'date-fns';
+import React from 'react'
+import determineTextColor from '../../utils/determineTextColor';
+import { trpc } from '../../utils/trpc';
 
-const EventInteractionModal = () => {
-    const { state, dispatch } = useContext(EventInteractionModalContext)
+export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorValue, tagName, topOffset, colIdx, isModalOpen, setIsModalOpen}: {
+    taskId: string;
+    taskTitle: string;
+    taskStart: Date;
+    taskEnd: Date;
+    tagId?: string | null;
+    tagColorValue?: string | null;
+    tagName?: string | null;
+    topOffset: number;
+    colIdx: number;
+    isModalOpen: boolean;
+    setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+}) => {
     const [hover, setHover] = React.useState(false)
     const [hovered, setHovered] = React.useState<1 | 2 | 3 | null>(null)
-    const [isBottomAnchored, setIsBottomAnchored] = React.useState(false)
-    const ref = useRef<HTMLDivElement>(null)
 
-console.log(state)
+    const utils = trpc.useContext()
+    const deleteTask = trpc.useMutation('tasks.delete-task', {
+        onSuccess: () => {
+            utils.invalidateQueries(['tasks.tasks'])
+        }
+    })
     const handleHover = async () => {
         if(!hover) {
             setTimeout(() => {
@@ -28,85 +41,69 @@ console.log(state)
     const handleHovered = (hovered: 1 | 2 | 3 | null) => {
         setHovered(hovered)
     }
-    
-    useLayoutEffect(() => {const diff = state.calendarHeight ? (state.calendarHeight - state.referenceTopOffset) : (700 - state.referenceTopOffset)
-    //136 is min height of interaction modal
-    diff > 136 ?
-    setIsBottomAnchored(false) :
-    setIsBottomAnchored(true)}, [])
+
+    const handleDelete = () => {
+        deleteTask.mutate({taskId})
+        setIsModalOpen(false)
+    }
 
 
+    const leftOffset = colIdx >= 3 ? `-304%` : `100%`
+    const modalTopOffset = topOffset < 75 ? topOffset : (topOffset - 15)
 
-    //depending on what day column event is in, modal will be positioned to the right or left of event
-    //if fourth column or more: modal will move left (towards 0) by 3 times the width of columns (modal width is 3x width of a column)
-    //this moves the right edge of the modal to the left edge of the event, we subtract 4px for a small gap
-
-    //if first, second or third column: modal will move right (towards 100%) by the width of a column
-    //this moves the left edge of the modal to the right edge of the event, we add 4px for a small gap
-    const leftOffset = state.columnIdx >= 3 ? state.referenceLeftOffset - (3*state.referenceWidth) - 4 : state.referenceLeftOffset + state.referenceWidth + 4
-
-    const positionObj: {top?: number, bottom?: number, left: number} = {left: leftOffset}
-
-    useLayoutEffect(()=>{isBottomAnchored ? positionObj['bottom'] = state.modalBottomOffset : positionObj['top'] = state.referenceTopOffset}, [isBottomAnchored])
-
-  return (
-    <>
-        <Dialog open={state.isEventInteractionModalOpen} onClose={() => dispatch({type: "closeModal"})} className="z-[100] relative" >
-            {/* Prevent opening createModal when clicking outside of EventInteractionModal w/ overlay */}
-            <div className="fixed inset-0" />
-            <div className='fixed' style={positionObj}>
-                <Dialog.Panel className="relative" >
-                    <div className={`fixed flex-col rounded drop-shadow-2xl bg-white`} ref={ref} style={{width: state.referenceWidth * 3}}>
-                        <div className='flex flex-grow justify-end'>
-                            <div className="flex flex-row p-2 gap-2" onMouseLeave={handleHover} onMouseEnter={handleHover}>
-                                <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(1)} onMouseLeave={() => handleHovered(null)}>
-                                    {hover && hovered == 1 && 
-                                        <div className=' bg-gray-700 text-white text-xs whitespace-nowrap absolute top-9 rounded-sm px-2 py-1'>
-                                            Edit event
-                                        </div>
-                                    }
-                                    <PencilIcon className='text-gray-600 hover:text-white w-5 h-5'/>
-                                </div>
-                                <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(2)} onMouseLeave={() => handleHovered(null)}>
-                                    <TrashIcon className='text-gray-600 hover:text-white w-5 h-5' />
-                                    {hover && hovered == 2 && 
-                                        <div className=' bg-gray-700 text-white text-xs whitespace-nowrap absolute top-9 rounded-sm px-2 py-1'>
-                                            Delete event
-                                        </div>
-                                    }
-                                </div>
-                                <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(3)} onMouseLeave={() => handleHovered(null)}>
-                                    <XMarkIcon className='text-gray-600 hover:text-white w-5 h-5' onClick={() => dispatch({type: "closeModal"})}/>
-                                    {hover && hovered == 3 && 
-                                        <div className=' bg-gray-700 text-white text-xs whitespace-nowrap absolute top-9 rounded-sm px-2 py-1'>
-                                            Close
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                        <div className='flex flex-col pl-4 pb-4'>
-                            <div className='flex items-center'>
-                                <div className={`rounded uppercase tracking-wide text-sm mr-2 font-semibold ${state.eventTagColor ? `px-2 py-1 text-${determineTextColor(state.eventTagColor)}` : 'hidden'}`} style={{backgroundColor: state.eventTagColor ? state.eventTagColor : ''}}>
-                                    {state.eventTagName}
-                                </div>
-                                <h1 className='text-gray-700 text-2xl tracking-wide'>
-                                    {state.eventTitle}
-                                </h1>
-                            </div>
-                            <h2 className='text-gray-700 text-sm tracking-tighter'>
-                                {
-                                //format using datefns format() method: state.eventStart and state.eventEnd so that it reads like this: Day, Month Day of Month, Hour:Minute AM/PM - Hour:Minute AM/PM
-                                    format(state.eventStart, 'EEEE, MMMM do, h:mm a') + ' - ' + format(state.eventEnd, 'h:mm a')
+    return (
+             <>
+                <div className={`absolute flex-col rounded drop-shadow-2xl bg-white z-[100]`} style={{width: `300%`, top: `${modalTopOffset}%`, left: leftOffset}}>
+                    <div className='flex flex-grow justify-end'>
+                        <div className="flex flex-row p-2 gap-2" onMouseLeave={handleHover} onMouseEnter={handleHover}>
+                            <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(1)} onMouseLeave={() => handleHovered(null)}>
+                                {hover && hovered == 1 && 
+                                    <div className=' bg-gray-700 text-white text-xs whitespace-nowrap absolute top-9 rounded-sm px-2 py-1'>
+                                        Edit event
+                                    </div>
                                 }
-                            </h2>
+                                <PencilIcon className='text-gray-600 hover:text-white w-5 h-5'/>
+                            </div>
+                            <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(2)} onMouseLeave={() => handleHovered(null)}>
+                                <TrashIcon className='text-gray-600 hover:text-white w-5 h-5' onClick={handleDelete}/>
+                                {hover && hovered == 2 && 
+                                    <div className=' bg-gray-700 text-white text-xs whitespace-nowrap absolute top-9 rounded-sm px-2 py-1'>
+                                        Delete event
+                                    </div>
+                                }
+                            </div>
+                            <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(3)} onMouseLeave={() => handleHovered(null)}>
+                                <XMarkIcon className='text-gray-600 hover:text-white w-5 h-5' onClick={() => setIsModalOpen(!isModalOpen)}/>
+                                {hover && hovered == 3 && 
+                                    <div className=' bg-gray-700 text-white text-xs whitespace-nowrap absolute top-9 rounded-sm px-2 py-1'>
+                                        Close
+                                    </div>
+                                }
+                            </div>
                         </div>
-                    </div> 
-                </Dialog.Panel>
-            </div>    
-        </Dialog>
-  </>
-  )
+                    </div>
+                    <div className='flex flex-col px-4 pb-4'>
+                        <div className='flex items-center'>
+                            {tagColorValue &&
+                                <div className={`rounded uppercase tracking-wide text-sm mr-2 font-semibold ${tagColorValue ? `px-2 py-1 text-${determineTextColor(tagColorValue)}` : 'hidden'}`} style={{backgroundColor: tagColorValue ? tagColorValue : ''}}>
+                                    {tagName}
+                                </div>
+                            
+                            }
+                            <h1 className='text-gray-700 text-2xl tracking-wide'>
+                                {taskTitle}
+                            </h1>
+                        </div>
+                        <h2 className='text-gray-700 text-sm tracking-tighter'>
+                            {
+                                format(taskStart, 'EEEE, MMMM do, h:mm a') + ' - ' + format(taskEnd, 'h:mm a')
+                            }
+                        </h2>
+                    </div>
+                </div> 
+                <div className='fixed inset-0 z-[99] w-full h-full' onClick={() => setIsModalOpen(!isModalOpen)}>
+                </div>
+            </>
+    )
+    
 }
-
-export default EventInteractionModal

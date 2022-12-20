@@ -1,39 +1,12 @@
 import React, { createContext, useReducer } from 'react'
 
 type ReducerState = {
-    isEventInteractionModalOpen: boolean;
-    referenceTopOffset: number;
-    calendarHeight?: number;
-    modalBottomOffset?: number;
-    referenceLeftOffset: number;
-    columnIdx: number;
-    referenceWidth: number;
-    eventTitle: string;
-    eventStart: Date;
-    eventEnd: Date;
-    eventId: string;
-    eventTagName?: string,
-    eventTagColor?: string;
 }
 
 type ReducerAction = 
-    | { type: 'openModal', payload: ReducerState }
-    | { type: 'closeModal' }
-    | { type: 'initializeHeight', payload: Pick<ReducerState, 'calendarHeight'>}
+    | { type: 'openModal', payload: { } }
 
 const initialState: ReducerState = {
-    isEventInteractionModalOpen: false,
-    referenceTopOffset: 0,
-    calendarHeight: 700,
-    referenceLeftOffset: 0,
-    columnIdx: 0,
-    referenceWidth: 0,
-    eventTitle: '',
-    eventStart: new Date(),
-    eventEnd: new Date(),
-    eventId: '',
-    eventTagName: undefined,
-    eventTagColor: undefined
 }
 
 function reducer(state: typeof initialState, action: ReducerAction): ReducerState {
@@ -43,15 +16,6 @@ function reducer(state: typeof initialState, action: ReducerAction): ReducerStat
                 ...state,
                 ...action.payload,
             };
-        case 'closeModal':
-            return {
-                ...initialState
-            }
-        case 'initializeHeight':
-            return {
-                ...state,
-                ...action.payload
-            }
     }   
 }
 
