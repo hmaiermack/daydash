@@ -8,6 +8,7 @@ import { CreateModalContext } from '../../context/CreateModalContext'
 import { CalendarContext } from '../../context/CalendarContext'
 import { EditModalContext } from '../../context/EditModalContext'
 import EditModal from './EditModal'
+import CalendarToolbar from './CalendarToolbar'
 
 
 const CalendarContainer = () => {
@@ -62,76 +63,9 @@ const CalendarContainer = () => {
 
     const lastHour = hours[hours.length - 1]
 
-    const handleMoveTimeForward = () => {
-        switch (CalendarState.display) {
-            case 'week':
-                dispatch({
-                    type: 'moveTimeForward',
-                    payload: {
-                        dateRangeStart: addDays(CalendarState.dateRangeStart, 7),
-                        dateRangeEnd: addDays(CalendarState.dateRangeEnd, 7),
-                    }
-                });
-                break;
-            case 'one':
-                dispatch({
-                    type: 'moveTimeForward',
-                    payload: {
-                        dateRangeStart: addDays(CalendarState.dateRangeStart, 1),
-                        dateRangeEnd: addDays(CalendarState.dateRangeEnd, 1),
-                    }
-                });
-                break;
-            case 'three':
-                dispatch({
-                    type: 'moveTimeForward',
-                    payload: {
-                        dateRangeStart: addDays(CalendarState.dateRangeStart, 3),
-                        dateRangeEnd: addDays(CalendarState.dateRangeEnd, 3),
-                    }
-                });
-                break;
-            }
-        }
-
-const handleMoveTimeBackward = () => {
-    switch (CalendarState.display) {
-        case 'week':
-            dispatch({
-                type: 'moveTimeBackward',
-                payload: {
-                    dateRangeStart: subDays(CalendarState.dateRangeStart, 7),
-                    dateRangeEnd: subDays(CalendarState.dateRangeEnd, 7),
-                }
-            });
-            break;
-        case 'one':
-            dispatch({
-                type: 'moveTimeBackward',
-                payload: {
-                    dateRangeStart: subDays(CalendarState.dateRangeStart, 1),
-                    dateRangeEnd: subDays(CalendarState.dateRangeEnd, 1),
-                }
-            });
-            break;
-        case 'three':
-            dispatch({
-                type: 'moveTimeBackward',
-                payload: {
-                    dateRangeStart: subDays(CalendarState.dateRangeStart, 3),
-                    dateRangeEnd: subDays(CalendarState.dateRangeEnd, 3),
-                }
-            });
-        }
-        
-
-    }
-
-
   return (
     <>
-        <button className='bg-blue-200 p-4 mr-4' onClick={handleMoveTimeForward}>next week</button>
-        <button className='bg-blue-200 p-4 mr-4' onClick={handleMoveTimeBackward}>last week</button>
+        <CalendarToolbar />
         <div className='grid min-h-[700px]' style={{gridTemplateColumns: "80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr", gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
