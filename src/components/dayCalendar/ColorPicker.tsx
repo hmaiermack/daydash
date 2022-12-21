@@ -3,7 +3,7 @@ import React, { useState, FocusEvent } from 'react'
 import { ControllerRenderProps } from 'react-hook-form'
 
 //eslint-disable-next-line react/display-name
-const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & {disabled: boolean})>((props, ref) => {
+const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & {hidden: boolean})>((props, ref) => {
     const colors = [
         "#f06292", "#f44336",  "#9c27b0", "#673ab7",
         "#3f51b5", "#2196f3", "#81d4fa", "#00bcd4",
@@ -11,11 +11,10 @@ const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & 
         "#ffeb3b", "#ffc107", "#ff9800", "#ff5722",
      ]
     const [inputString, setInputString] = useState(props.value ? props.value : '')
-    console.log(props.disabled)
   return (
-    <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable disabled={props.disabled}>
+    <Combobox defaultValue={props.value} onChange={props.onChange} refName={props.name} nullable>
         {({open}) => (
-            <div className='mt-4 pb-4' >
+            <div className={`mt-4 pb-4 ${props.hidden ? 'hidden' : ''}`}>
                 <div className='w-full relative flex-col'>
             {/* 
                     onFocus in Combobox.Input "clicks" neighbor Combobox.Button so that Combobox parent will automatically open when
@@ -27,8 +26,8 @@ const ColorPicker = React.forwardRef<HTMLInputElement, (ControllerRenderProps & 
             <Combobox.Label className={`w-full block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2`}>Tag Color</Combobox.Label>
             <div className='flex'>
             <Combobox.Input
-                className={`grow appearance-none block ${props.disabled ? 'w-full' : ''} bg-white text-gray-900 font-medium rounded-lg py-3 px-3 leading-tight`}
-                placeholder={props.disabled ? 'Selected tag already has a color' : 'Tab or Enter to submit Hex' }
+                className={`grow appearance-none blockbg-white text-gray-900 font-medium rounded-lg py-3 px-3 leading-tight`}
+                placeholder='Tab or Enter to submit Hex'
                 displayValue={() => props.value ? props.value : inputString}
                 onChange={(e) => setInputString(e.target.value)} 
                 //@ts-ignore

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect, useLayoutEffect } from 'react'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
 import { Controller, SubmitHandler, useForm, useFormState } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -24,8 +24,8 @@ type Inputs = {
 }
 
 const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: number, timeRangeStart: number, tags: Tag[], tasks: Task[]}) => {
-  const [isColorPickerDisabled, setIsColorPickerDisabled] = useState(false)
   const {state, dispatch} = React.useContext(EditModalContext)
+  const [isColorPickerDisabled, setIsColorPickerDisabled] = useState(!!state.tagColor)
   const schema = z.object({
         title: z.string().min(5, { message: "Must be 5 or more characters long" }),
         startTime: z.date(),
@@ -94,9 +94,7 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
           path: ['tagName'] }
         )
       }
-    })
-
-  
+    })  
     
     const { register, handleSubmit, watch, formState: { errors }, control, setValue, getValues } = useForm<Inputs>({
       defaultValues: {
@@ -111,7 +109,6 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
 
     const tName = watch("tagName")
     const form = watch()
-    console.log(form)
     useEffect(() => {
       for(let tag of tags) {
         if(tag.name.toLowerCase() === tName ? tName.toLowerCase() : '') {
@@ -146,7 +143,7 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
             tagName: undefined,
             tagColor: undefined
         }})
-}
+  }
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
       //if tag name and tag color are both present, create task with tag
       if(!state.eventId) return
@@ -169,7 +166,6 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
         timeEnd: data.endTime,
       })
     }  
-    console.log(isColorPickerDisabled)
 
   return (
   <>
@@ -272,13 +268,13 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
                             <Controller
                               name="tagName"
                               control={control}
-                              render={({ field }) => <TagNameCombobox {...field} tags={tags} />}
+                              render={({ field }) => <TagNameCombobox {...field} tags={tags} tagColor={getValues("tagColor")} hidden={isColorPickerDisabled} />}
                             />
                             {errors.tagName && <span className='text-red-500'>{errors.tagName?.message}</span>}
                             <Controller 
                               name="tagColor"
                               control={control}
-                              render={({ field }) => <ColorPicker {...field} disabled={isColorPickerDisabled} />}
+                              render={({ field }) => <ColorPicker {...field} hidden={isColorPickerDisabled} />}
                             />
                             {errors.tagColor && <span className='text-red-500'>{errors.tagColor?.message}</span>}
                           </Disclosure.Panel>

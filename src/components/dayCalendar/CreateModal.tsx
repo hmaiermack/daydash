@@ -109,7 +109,6 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
     });
 
     const tName = watch("tagName")
-    console.log(tName)
     useEffect(() => {
       for(let tag of tags) {
         if(tag.name.toLowerCase() === tName ? tName.toLowerCase() : '') {
@@ -157,7 +156,6 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
         timeEnd: data.endTime,
       })
     }  
-    console.log(isColorPickerDisabled)
 
   return (
   <>
@@ -260,13 +258,14 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
                             <Controller
                               name="tagName"
                               control={control}
-                              render={({ field }) => <TagNameCombobox {...field} tags={tags} />}
+                              render={({ field }) => <TagNameCombobox {...field} tags={tags} tagColor={getValues("tagColor")} hidden={isColorPickerDisabled}/>}
                             />
                             {errors.tagName && <span className='text-red-500'>{errors.tagName?.message}</span>}
                             <Controller 
                               name="tagColor"
                               control={control}
-                              render={({ field }) => <ColorPicker {...field} disabled={isColorPickerDisabled} />}
+                              render={({ field }) => <ColorPicker {...field} hidden={isColorPickerDisabled} 
+                              />}
                             />
                             {errors.tagColor && <span className='text-red-500'>{errors.tagColor?.message}</span>}
                           </Disclosure.Panel>
