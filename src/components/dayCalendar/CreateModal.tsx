@@ -143,16 +143,16 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
       //if tag name and tag color are both present, create task with tag
       data.tagName && data.tagColor
       ? await newTask.mutateAsync({
-        title: data.title,
+        title: data.title.trim(),
         timeStart: data.startTime,
         timeEnd: data.endTime,
         tag: {
-          name: data.tagName,
+          name: data.tagName.trim(),
           colorHexValue: data.tagColor
         }
       })
       : await newTask.mutateAsync({
-        title: data.title,
+        title: data.title.trim(),
         timeStart: data.startTime,
         timeEnd: data.endTime,
       })

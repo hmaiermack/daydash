@@ -114,7 +114,6 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
     console.log(form)
     useEffect(() => {
       for(let tag of tags) {
-        console.log({name: tag.name, length: tag.name.length})
         if(tag.name.toLowerCase() === tName ? tName.toLowerCase() : '') {
           setValue("tagColor", tag.colorHexValue)
           setIsColorPickerDisabled(true)
@@ -155,11 +154,11 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
       data.tagName && data.tagColor
       ? await editTask.mutateAsync({
         taskId: state.eventId,
-        title: data.title,
+        title: data.title.trim(),
         timeStart: data.startTime,
         timeEnd: data.endTime,
         tag: {
-          name: data.tagName,
+          name: data.tagName.trim(),
           colorHexValue: data.tagColor
         }
       })
