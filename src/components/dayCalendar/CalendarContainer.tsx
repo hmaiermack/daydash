@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { addDays, addHours, eachDayOfInterval, format, isSameDay, eachHourOfInterval, subDays } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Task } from '@prisma/client'
@@ -63,10 +63,28 @@ const CalendarContainer = () => {
 
     const lastHour = hours[hours.length - 1]
 
+    const [template, setTemplate] = useState("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
+
+    useEffect(() => {
+        switch(CalendarState.display) {
+            case "week":
+                setTemplate("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
+                break;
+            case "one":
+                setTemplate("80px 1fr")
+                break;
+            case "three":
+                setTemplate("80px 1fr 1fr 1fr")
+                break;
+        }
+    }, [CalendarState.display])
+
+
+
   return (
     <>
         <CalendarToolbar />
-        <div className='grid min-h-[700px]' style={{gridTemplateColumns: "80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr", gridTemplateRows: "48px 1fr"}}>
+        <div className='grid min-h-[700px]' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
                     return (
