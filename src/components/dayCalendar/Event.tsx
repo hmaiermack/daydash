@@ -2,6 +2,7 @@ import { addHours, differenceInMinutes, format, startOfDay } from 'date-fns';
 import React from 'react'
 import { CalendarContext } from '../../context/CalendarContext';
 import determineTextColor from '../../utils/determineTextColor';
+import { getTopOffset } from '../../utils/getTopOffset';
 import { EventInteractionModal } from './EventInteractionModal';
 
 const getEventHeight = (parentHeight: number, steps: number, lengthOfEventInMins: number): number => {
@@ -12,16 +13,6 @@ const getEventHeight = (parentHeight: number, steps: number, lengthOfEventInMins
     const height = percentagePerMinute * lengthOfEventInMins
     return height
 
-}
-
-const getTopOffset = (startOfEvent: Date, startOfDay: Date, steps: number): number => {
-    const totalMinutesForDay = steps * 60
-
-    const diffInMinutes = differenceInMinutes(startOfEvent, startOfDay)
-
-    // toFixed rounds to two decimals but returns string so have to parse result
-    const offset = parseFloat(((diffInMinutes / totalMinutesForDay) * 100).toFixed(2))
-    return offset
 }
 
 export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorValue, tagName, steps, parentHeight, startHour, colIdx}: {
