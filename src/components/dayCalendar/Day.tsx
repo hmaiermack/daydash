@@ -1,9 +1,10 @@
 import { Task } from '@prisma/client'
-import { addHours, isSameDay } from 'date-fns';
+import { addHours, isSameDay, startOfDay } from 'date-fns';
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { CalendarContext } from '../../context/CalendarContext';
-import CreateModal from './CreateModal';
+import { getTopOffset } from '../../utils/getTopOffset';
 import { Event } from './Event';
+import useWindowSize from '../../hooks/useWindowSize';
 import HourMarker from './HourMarker';
 
 const Day = ({tasks, timeRangeStart, timeRangeEnd, colIdx, day}: {
@@ -19,14 +20,20 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, colIdx, day}: {
     const [leftOffset, setLeftOffset] = useState<number>(0)
     const [width, setWidth] = useState<number>(0)
     const dayRef = useRef<HTMLDivElement>(null)
+
+    //will reposition time marker correctly on window resize, TBD if this broke things
+    //if things get fucky, remove windowSize deps
+    const {width: windowWidth, height: windowHeight } = useWindowSize()
     useEffect(() => {
         setWidth(dayRef.current!.clientWidth)
         setHeight(dayRef.current!.offsetHeight)
         setLeftOffset(dayRef.current!.offsetLeft)
-    }, [])
+    }, [windowWidth, windowHeight])
     
     const hourMarkers = []
     const steps = timeRangeEnd - timeRangeStart
+    const currentTimeOffset = day ? getTopOffset(new Date(), addHours(startOfDay(day), timeRangeStart), steps) : null
+    console.log(currentTimeOffset)
     for(let i = timeRangeStart; i < timeRangeEnd; i++) {
         if(day){
         const timeAndDate = addHours(day, i)
@@ -38,7 +45,15 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, colIdx, day}: {
   
     return (
     <>
+            {
+                state.today && day && isSameDay(day, state.today) && currentTimeOffset != null &&
+                <span className={`content-none h-[1px] absolute bg-red-500`} style={{top: `${currentTimeOffset}%`, left: leftOffset, width: width + 1, zIndex: 200}}>
+                    <div className='h-4 w-4 rounded-full bg-red-500 absolute -left-2 -top-2'/>
+                </span>
+            }
+
         <div className={`relative grid grid-cols-1 grid-rows-[${timeRangeEnd - timeRangeStart}] ${state.today && state.display != "one" && day && isSameDay(day, state.today) ? 'bg-slate-50' : ''} border-l last:border-r`} ref={dayRef}>
+
             {
                 hourMarkers.map((e) => {
                     return e
