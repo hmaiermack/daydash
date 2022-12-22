@@ -130,7 +130,7 @@ const CalendarToolbar = () => {
             <span className='uppercase tracking-wide text-gray-700 font-bold'>
                 {
                     CalendarState.display != 'one' && isSameMonth(CalendarState.dateRangeStart, CalendarState.dateRangeEnd) ?
-                    `${format(CalendarState.dateRangeStart, 'MMM yyyy')}` : `${format(CalendarState.dateRangeEnd, 'M')} - ${format(CalendarState.dateRangeEnd, 'M yyyy')}`
+                    `${format(CalendarState.dateRangeStart, 'MMM yyyy')}` : `${format(CalendarState.dateRangeEnd, 'MMMM yyyy')}`
 
                 }
             </span>
