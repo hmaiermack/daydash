@@ -89,7 +89,7 @@ const CalendarContainer = () => {
             <div></div>
                 {days.map((day) => {
                     return (
-                        <div key={day.toDateString()} className='flex flex-col items-center hover:bg-slate-50 hover:cursor-pointer' onClick={() => {
+                        <div key={day.toDateString()} className={`${CalendarState.today && isSameDay(day, CalendarState.today) ? 'bg-blue-200' : ''} flex p-3 flex-col justify-center items-center hover:bg-slate-50 hover:cursor-pointer`} onClick={() => {
                             dispatch({type: 'changeDisplay', payload: {
                                 display: 'one',
                                 dateRangeStart: startOfDay(day),
