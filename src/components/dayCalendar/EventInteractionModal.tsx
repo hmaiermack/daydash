@@ -1,11 +1,12 @@
 import { PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { addHours, differenceInMinutes, format, startOfDay, startOfHour } from 'date-fns';
 import React, { useContext } from 'react'
+import { CalendarContext } from '../../context/CalendarContext';
 import { EditModalContext } from '../../context/EditModalContext';
 import determineTextColor from '../../utils/determineTextColor';
 import { trpc } from '../../utils/trpc';
 
-export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorValue, tagName, topOffset, colIdx, isModalOpen, setIsModalOpen}: {
+export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorValue, tagName, topOffset, eventHeight, colIdx, isModalOpen, setIsModalOpen}: {
     taskId: string;
     taskTitle: string;
     taskStart: Date;
@@ -14,6 +15,7 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
     tagColorValue?: string | null;
     tagName?: string | null;
     topOffset: number;
+    eventHeight: number;
     colIdx: number;
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -21,6 +23,7 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
     const [hover, setHover] = React.useState(false)
     const [hovered, setHovered] = React.useState<1 | 2 | 3 | null>(null)
     const { dispatch } = useContext(EditModalContext)
+    const { state } = useContext(CalendarContext)
 
     const utils = trpc.useContext()
     const deleteTask = trpc.useMutation('tasks.delete-task', {
@@ -73,12 +76,37 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
     }
 
 
-    const leftOffset = colIdx >= 3 ? `-304%` : `100%`
-    const modalTopOffset = topOffset < 75 ? topOffset : (topOffset - 15)
 
+
+    let leftOffset: string = '0'
+    let width: string = '0'
+    let modalTopOffset: string = '0'
+
+    const topPercentage = topOffset / 100
+
+
+    switch (state.display)  {
+        case "week":
+            leftOffset = colIdx >= 3 ? `-304%` : `100%`
+            width = '304%'
+            modalTopOffset = topOffset < 75 ? `${topOffset}%` : `${(topOffset - 15)}%`
+            break;
+        case "one":
+            leftOffset = '0'
+            width = '100%'
+            break;
+        case "three":
+            leftOffset = colIdx == 0 ? `104%` :`-${(colIdx * 100) + 4}%`
+            width = '200%'
+            break;
+    }
+
+    //fix magic nums: 652-> height of day, 700-> height of calendar container, 75-> anything below 75% of the calendar container anchor modal to the bottom
+    const bottom = topPercentage >= 0.75 ? 0 : (652 - (700 * topPercentage) - eventHeight)
+    
     return (
              <>
-                <div className={`absolute flex-col rounded drop-shadow-2xl bg-white z-[100]`} style={{width: `300%`, top: `${modalTopOffset}%`, left: leftOffset}}>
+                <div className={`absolute flex-col rounded drop-shadow-2xl bg-white z-[100]`} style={{width, top: topOffset < 75 ? `${topOffset}%` : '', bottom: topOffset >= 75 ? `${bottom}px` : '', left: leftOffset}}>
                     <div className='flex flex-grow justify-end'>
                         <div className="flex flex-row p-2 gap-2" onMouseLeave={handleHover} onMouseEnter={handleHover}>
                             <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(1)} onMouseLeave={() => handleHovered(null)}>

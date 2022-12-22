@@ -1,5 +1,6 @@
 import { addHours, differenceInMinutes, format, startOfDay } from 'date-fns';
 import React from 'react'
+import { CalendarContext } from '../../context/CalendarContext';
 import determineTextColor from '../../utils/determineTextColor';
 import { EventInteractionModal } from './EventInteractionModal';
 
@@ -37,6 +38,7 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
     startHour: number
 }) => {
     const [isModalOpen, setIsModalOpen] = React.useState(false)
+    const { state } = React.useContext(CalendarContext)
 
     const date = new Date
 
@@ -61,7 +63,7 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
 
     return (
         <>
-            <button key={taskId} className={`${date > taskEnd ? 'hover:saturate-150 opacity-25' : 'hover:saturate-150'} absolute w-[95%] ${tagColorValue ? '' : 'bg-blue-300'} z-50 flex flex-col overflow-auto rounded-sm`} style={{top: `${topOffset}%`, height: `${divHeight}px`, backgroundColor: tagColorValue ? tagColorValue : ''}} onClick={handleClick}>
+            <button key={taskId} className={`${date > taskEnd ? 'hover:saturate-150 opacity-25' : 'hover:saturate-150'} absolute ${ state.display === "week" ? `w-[95%]` : 'w-full'} ${tagColorValue ? '' : 'bg-blue-300'} z-50 flex flex-col overflow-auto rounded-sm`} style={{top: `${topOffset}%`, height: `${divHeight}px`, backgroundColor: tagColorValue ? tagColorValue : ''}} onClick={handleClick}>
                     <span className={`block mt-1 ml-1 text-left font-light text-xs text-${textColor} leading-none`}>
                         {taskTitle}{divHeight > minDivHeight/2 ? <br></br> : ''}{divHeight > minDivHeight ? `${format(taskStart, "h:mm")} - ${format(taskEnd, "hp")}` : ` ${format(taskStart, "h:mm a")}`}
                     </span>
@@ -70,7 +72,7 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
 
 
             {isModalOpen &&  
-            <EventInteractionModal taskId={taskId} taskTitle={taskTitle} taskStart={taskStart} taskEnd={taskEnd} tagId={tagId} tagColorValue={tagColorValue} tagName={tagName} topOffset={modalTopOffset} colIdx={colIdx} setIsModalOpen={setIsModalOpen} isModalOpen/>
+            <EventInteractionModal taskId={taskId} taskTitle={taskTitle} taskStart={taskStart} taskEnd={taskEnd} tagId={tagId} tagColorValue={tagColorValue} tagName={tagName} topOffset={modalTopOffset} eventHeight={divHeight} colIdx={colIdx} setIsModalOpen={setIsModalOpen} isModalOpen/>
             }   
         </>
     )
