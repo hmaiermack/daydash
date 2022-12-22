@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { addDays, addHours, eachDayOfInterval, format, isSameDay, eachHourOfInterval, subDays } from 'date-fns'
+import { startOfDay, endOfDay, addHours, eachDayOfInterval, format, isSameDay, eachHourOfInterval, subDays } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Task } from '@prisma/client'
 import Day from './Day'
@@ -15,6 +15,7 @@ const CalendarContainer = () => {
     const {state: CreateModalState } = React.useContext(CreateModalContext)
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
     const { state: EditModalState } = React.useContext(EditModalContext)
+    const [selectedDisplay, setSelectedDisplay] = React.useState(CalendarState.display)
 
 
     
@@ -83,12 +84,22 @@ const CalendarContainer = () => {
 
   return (
     <>
-        <CalendarToolbar />
+        <CalendarToolbar selectedDisplay={selectedDisplay} setSelectedDisplay={setSelectedDisplay}/>
         <div className='grid min-h-[700px] px-8' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
                     return (
-                        <div key={day.toDateString()}>{format(day, "eeee d")}</div>
+                        <div key={day.toDateString()} className='flex flex-col items-center hover:bg-slate-50 hover:cursor-pointer' onClick={() => {
+                            dispatch({type: 'changeDisplay', payload: {
+                                display: 'one',
+                                dateRangeStart: startOfDay(day),
+                                dateRangeEnd: endOfDay(day)
+                            }})
+                            setSelectedDisplay('one')
+                        }}>
+                            <div>{format(day, "eeee")}</div>
+                            <div>{format(day, "d")}</div>
+                        </div>
                     )
                 })}
                 {taskData && 

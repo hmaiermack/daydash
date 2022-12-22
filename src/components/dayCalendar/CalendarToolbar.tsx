@@ -6,7 +6,9 @@ import { CalendarContext } from '../../context/CalendarContext'
 import { trpc } from '../../utils/trpc'
 
 
-const CalendarToolbar = () => {
+const CalendarToolbar = ({selectedDisplay, setSelectedDisplay}: {
+    selectedDisplay: "one" | "three" | "week" | undefined, 
+    setSelectedDisplay: React.Dispatch<React.SetStateAction< "one" | "three" | "week" | undefined >>}) => {
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
 
     const utils = trpc.useContext()
@@ -83,8 +85,6 @@ const CalendarToolbar = () => {
         }
 
     const displayTypes = ['one', 'three', 'week']
-
-    const [selectedDisplay, setSelectedDisplay] = React.useState(CalendarState.display)
 
     useEffect(() => {
         switch (selectedDisplay) {
