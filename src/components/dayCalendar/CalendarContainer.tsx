@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { addDays, addHours, eachDayOfInterval, format, isSameDay, eachHourOfInterval, subDays } from 'date-fns'
 import { trpc } from '../../utils/trpc'
 import { Task } from '@prisma/client'
@@ -36,7 +36,7 @@ const CalendarContainer = () => {
   if(taskData) {
     hours = eachHourOfInterval({start: addHours(CalendarState.dateRangeStart, taskData?.timeRangeStart), end: addHours(CalendarState.dateRangeStart, taskData?.timeRangeEnd - 1)})
   }
-    useMemo(() => {
+    useEffect(() => {
         if(taskData?.tasks != undefined) {
             //this is nasty
             //probably should just get userInfo from api and make it available to whole app
@@ -59,13 +59,13 @@ const CalendarContainer = () => {
             setData([...cols])
           }
           //eslint-disable-next-line
-    }, [taskData])
+    }, [taskData, CalendarState.display])
 
     const lastHour = hours[hours.length - 1]
 
     const [template, setTemplate] = useState("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         switch(CalendarState.display) {
             case "week":
                 setTemplate("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
@@ -84,7 +84,7 @@ const CalendarContainer = () => {
   return (
     <>
         <CalendarToolbar />
-        <div className='grid min-h-[700px]' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
+        <div className='grid min-h-[700px] px-8' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
                     return (

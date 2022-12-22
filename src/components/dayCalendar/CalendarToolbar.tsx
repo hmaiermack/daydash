@@ -1,12 +1,15 @@
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { addDays, endOfDay, format, isSameMonth, startOfDay, subDays } from 'date-fns'
+import { addDays, endOfDay, endOfWeek, format, isSameMonth, startOfDay, startOfWeek, subDays } from 'date-fns'
 import React, { Fragment, useEffect } from 'react'
 import { CalendarContext } from '../../context/CalendarContext'
+import { trpc } from '../../utils/trpc'
 
 
 const CalendarToolbar = () => {
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
+
+    const utils = trpc.useContext()
 
     const handleToday = () => {
         dispatch({type: 'changeDisplay', payload: {
@@ -93,7 +96,8 @@ const CalendarToolbar = () => {
                         dateRangeEnd: endOfDay(CalendarState.dateRangeStart),
                         display: 'one',
                     }
-                });
+                })
+                utils.invalidateQueries('tasks.tasks')
                 break;
             case 'three':
                 dispatch({
@@ -103,17 +107,19 @@ const CalendarToolbar = () => {
                         dateRangeEnd: endOfDay(addDays(CalendarState.dateRangeStart, 2)),
                         display: 'three',
                     }
-                });
+                })
+                utils.invalidateQueries('tasks.tasks')
                 break;
             case 'week':
                 dispatch({
                     type: 'changeDisplay',
                     payload: {
-                        dateRangeStart: startOfDay(CalendarState.dateRangeStart),
-                        dateRangeEnd: endOfDay(addDays(CalendarState.dateRangeStart, 6)),
+                        dateRangeStart: startOfWeek(CalendarState.dateRangeStart),
+                        dateRangeEnd: endOfWeek(CalendarState.dateRangeStart),
                         display: 'week',
                     }
-                });
+                })
+                utils.invalidateQueries('tasks.tasks')
                 break;
         }
     }, [selectedDisplay])
