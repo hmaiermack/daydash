@@ -6,12 +6,14 @@ type ReducerState = {
     dateRangeStart: Date,
     dateRangeEnd: Date,
     today?: Date,
+    filterByTagName?: string,
 }
 
 type ReducerActions = 
     | { type: 'moveTimeForward', payload: ReducerState }
     | { type: 'moveTimeBackward', payload: ReducerState }
     | { type: 'changeDisplay', payload: ReducerState }
+    | { type: 'changeFilter', payload: ReducerState }
 
 const initialState: ReducerState = {
     display: "week",
@@ -37,7 +39,11 @@ function reducer(state: typeof initialState, action: ReducerActions): ReducerSta
                 ...state,
                 ...action.payload,
             }
-
+        case 'changeFilter':
+            return {
+                ...state,
+                ...action.payload,
+            }
     }   
 }
 
