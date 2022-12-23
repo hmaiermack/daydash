@@ -8,6 +8,7 @@ import { EventInteractionModalProvider } from "../context/EventInteractionModalC
 import CalendarContainer from "../components/dayCalendar/CalendarContainer";
 import { CalendarContextProvider } from "../context/CalendarContext";
 import { EditModalProvider } from "../context/EditModalContext";
+import HabitContainer from "../components/habits/HabitContainer";
 
 
 
@@ -22,7 +23,7 @@ const Home: NextPage = () => {
             <div>
             <CalendarContainer />
 
-            <div className="w-full h-40 bg-green-400 mt-5"></div>
+            <HabitContainer />
             </div>
           </EventInteractionModalProvider>
         </CreateModalProvider>
