@@ -1,5 +1,5 @@
 import { Task } from '@prisma/client'
-import { addHours, isSameDay, startOfDay } from 'date-fns';
+import { addHours, isBefore, isSameDay, startOfDay } from 'date-fns';
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { CalendarContext } from '../../context/CalendarContext';
 import { getTopOffset } from '../../utils/getTopOffset';
@@ -47,7 +47,7 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, colIdx, day}: {
 
         <div className={`relative grid grid-cols-1 grid-rows-[${timeRangeEnd - timeRangeStart}] ${state.today && state.display != "one" && day && isSameDay(day, state.today) ? 'bg-slate-50' : ''} border-l last:border-r`} ref={dayRef}>
         {
-                state.today && day && isSameDay(day, state.today) && currentTimeOffset != null &&
+                state.today && day && isSameDay(day, state.today) && currentTimeOffset != null && isBefore(new Date(), addHours(startOfDay(day), timeRangeEnd)) &&
                 <span className={`content-none h-[1px] absolute bg-red-500`} style={{top: `${currentTimeOffset}%`, width: width + 1, zIndex: 200}}>
                     <div className='h-4 w-4 rounded-full bg-red-500 absolute -left-2 -top-2'/>
                 </span>
