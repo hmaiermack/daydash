@@ -1,6 +1,5 @@
 import React from 'react'
 import HabitGrid from './HabitGrid'
-import HabitList from './HabitList'
 
 const HabitContainer = () => {
   return (

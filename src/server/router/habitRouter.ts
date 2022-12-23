@@ -1,10 +1,10 @@
 import { TRPCError } from "@trpc/server"
 import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday } from "date-fns"
 import { z } from "zod"
-import { Day } from "../../../types/types"
+import { GraphDay } from "../../../types/types"
 import { createRouter } from "./context"
 
-export const taskRouter = createRouter()
+export const habitRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
         if (!ctx.session) {
             throw new TRPCError({code: "UNAUTHORIZED"})
@@ -37,12 +37,12 @@ export const taskRouter = createRouter()
                 }
             })
 
-            const intervalStart = subMonths(Date.now(), 3)
+            const intervalStart = subMonths(Date.now(), 6)
             const intervalEnd = subDays(Date.now(), 1)
     
             const intervalArray = eachDayOfInterval({start: intervalStart, end: intervalEnd})
             
-            const intervalData: Day[] = []
+            const intervalData: GraphDay[] = []
             
             //populate the intervalData with proplerly formatted date
             intervalArray.forEach(date => {
