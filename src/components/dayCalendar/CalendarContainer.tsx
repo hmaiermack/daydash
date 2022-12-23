@@ -10,6 +10,8 @@ import { EditModalContext } from '../../context/EditModalContext'
 import EditModal from './EditModal'
 import CalendarToolbar from './CalendarToolbar'
 
+//TODO: break this up into smaller components
+//TODO: render a skeleton calendar while loading to prevent flicker
 
 const CalendarContainer = () => {
     const {state: CreateModalState } = React.useContext(CreateModalContext)
