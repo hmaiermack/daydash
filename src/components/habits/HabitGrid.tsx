@@ -8,11 +8,14 @@ function HabitGrid () {
 
     return (
         <div className="w-full lg:w-5/12 bg-blue-200 p-4 flex flex-col justify-center items-center gap-1 rounded text-left">
-            <div className="block text-left">
-              <h2 className="font-semibold text-lg my-1">Habit Tracker</h2>
-              <p className="font-light text-sm mb-4 text-left">See how  well you&#39;ve adhered to your habits in the past 6 months.</p>
+            <div className="flex flex-col">
+              <h2 className="font-bold text-2xl my-1">Habit Tracker</h2>
+              <p className="font-light text-left text-sm px-4 pb-4 max-w-prose">
+                {data ? data.message : ''
+                }
+              </p>
             </div>
-            {data &&
+            {data && data.formattedData != undefined &&
               <ActivityCalendar 
               blockMargin={2}
               blockSize={12}
@@ -20,7 +23,7 @@ function HabitGrid () {
               fontSize={12}
               hideColorLegend
               hideTotalCount
-              data={data?.intervalData} 
+              data={data!.formattedData} 
                 labels={{
                   legend: {
                     less: 'Less',

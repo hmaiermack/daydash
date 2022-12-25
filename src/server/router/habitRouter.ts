@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server"
-import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday } from "date-fns"
+import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday, isBefore, isAfter, getDay } from "date-fns"
+import { Day } from "react-activity-calendar"
 import { z } from "zod"
 import { GraphDay } from "../../../types/types"
 import { createRouter } from "./context"
@@ -28,71 +29,133 @@ export const habitRouter = createRouter()
             const habits = await ctx.prisma.habit.findMany({
                 where: {
                     userId: ctx.session?.user.id
-                }
-            })
-    
-            const completedHabits = await ctx.prisma.completedHabit.findMany({
-                where: {
-                    userId: ctx.session?.user.id
+                },
+                orderBy: {
+                    createdAt: "asc"
                 }
             })
 
+            if(!habits) return {message: "Create a habit to see your adherence graph.", code: "NO_HABITS"}
+
+    
+
+            const completedHabits = await ctx.prisma.completedHabit.findMany({
+                where: {
+                    userId: ctx.session?.user.id
+                },
+                orderBy: {
+                    dateCompleted: "asc"
+                }
+            })
+
+
+
+
+
+            const firstHabitDate = habits[0]!.createdAt
+
             const intervalStart = subMonths(Date.now(), 6)
+            const firstHabitSixMonthsOld = isBefore(firstHabitDate, intervalStart)
             const intervalEnd = subDays(Date.now(), 1)
     
             const intervalArray = eachDayOfInterval({start: intervalStart, end: intervalEnd})
             
             const intervalData: GraphDay[] = []
+
+            const formattedData: Day[] = []
             
             //populate the intervalData with proplerly formatted date
             intervalArray.forEach(date => {
-                let dateString = format(date, "yyyy-MM-dd")
                 intervalData.push({
-                    date: dateString,
+                    date,
                     count: 0,
                     level: 0
                 })
-            })
+            })    
+
+            // intervalArray.forEach(date => {
+            //     let dateString = format(date, "yyyy-MM-dd")
+            //     intervalData.push({
+            //         date: dateString,
+            //         count: 0,
+            //         level: 0
+            //     })
+            // })    
+
+            // intervalData.forEach(item => {
+            //     const weekday = parseInt(format(parseISO(item.date), "i"))
+            //     let completedCount = 0
+
+            //     if(!firstHabitSixMonthsOld) {
+            //         habits.forEach(habit => {
+            //             if(isAfter(habit.createdAt, new Date(item.date))) {
+            //                 if(habit.habitDays[weekday-1] == true) item.count += 1
+            //             }
+            //         }
+            //         )
+            //     }
+
+            //     if(firstHabitSixMonthsOld) {
+            //         habits.forEach(habit => {
+            //             if(habit.habitDays[weekday-1] == true) item.count += 1
+            //         })
+            //     }
+
     
-    
-            let adherencePercentage: number = 0
+            let totalHabits: number = 0
+            let totalCompletedHabits: number = 0
+            let totalAdherencePercentage: number = 0
     
             intervalData.forEach(item => {
-                const weekday = parseInt(format(parseISO(item.date), "i"))
                 let completedCount = 0
-                
-                habits.forEach(habit => {
-                    if(habit.habitDays[weekday-1] == true) item.count += 1
-                })
+                const weekday = getDay(item.date)
+
+                if(!firstHabitSixMonthsOld) {
+                    habits.forEach(habit => {
+                        if(!isAfter(habit.createdAt, item.date) || isSameDay(habit.createdAt, item.date)) {
+                            if(habit.habitDays[weekday] == true) item.count += 1
+                        }
+                    }
+                    )
+                } else {
+                    habits.forEach(habit => {
+                        if(habit.habitDays[weekday-1] == true) item.count += 1
+                    })
+                }
     
                 completedHabits.forEach(completedHabit => {
-                    // console.log({
-                    //     itemDate: parseISO(item.date),
-                    //     completeDate: completedHabit.dateCompleted,
-                    //     isSame: isSameDay(parseISO(item.date), completedHabit.dateCompleted)
-                    // })
-                    if(isSameDay(parseISO(item.date), completedHabit.dateCompleted)) completedCount += 1
+                    if(isSameDay(item.date, completedHabit.dateCompleted)) completedCount += 1
                 })
-                adherencePercentage = completedCount / item.count
+                totalHabits += item.count
+                totalCompletedHabits += completedCount
+                const dailyAdherence = completedCount / item.count
                 
-                if(adherencePercentage == 1) {
+                if(dailyAdherence == 1) {
                     item.level = 4
-                } else if (adherencePercentage <= .99 && adherencePercentage >= .66) {
+                } else if (dailyAdherence <= .99 && dailyAdherence >= .66) {
                     item.level = 3
-                } else if (adherencePercentage <= .65 && adherencePercentage >= .33) {
+                } else if (dailyAdherence <= .65 && dailyAdherence >= .33) {
                     item.level = 2
-                } else if (adherencePercentage <= .32 && adherencePercentage >= .01) {
+                } else if (dailyAdherence <= .32 && dailyAdherence >= .01) {
                     item.level = 1
                 } else {
                     item.level = 0
                 }
+
+                formattedData.push({
+                    date: format(item.date, "yyyy-MM-dd"),
+                    count: item.count,
+                    level: item.level
+                })
             })
+
+            totalAdherencePercentage = (totalCompletedHabits / totalHabits) * 100
     
-            if(isNaN(adherencePercentage)) {
-                adherencePercentage = 0;
+            if(isNaN(totalAdherencePercentage)) {
+                totalAdherencePercentage = 0;
             }
-            
-            return {intervalData, adherencePercentage}
+            const message = firstHabitSixMonthsOld ? `You've completed ${totalCompletedHabits} of ${totalHabits} possible habits in the last 6 months, adhering ${totalAdherencePercentage}% of the time.` : `You've completed ${totalCompletedHabits} of ${totalHabits} habits since you started tracking your habits on ${format(firstHabitDate, "MM/dd/yy")}.`
+            return {formattedData, message}
     
         }
     })
