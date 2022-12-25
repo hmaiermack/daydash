@@ -105,6 +105,7 @@ model Tag {
 
 model Habit {
   id String @id @default(cuid())
+  createdAt DateTime @default(now())
 
   name String
   habitDays Boolean[]
@@ -116,6 +117,7 @@ model Habit {
 
   completedHabits CompletedHabit[]
 
+  @@index([createdAt])
   @@unique([name, userId])
   @@map("habits")
 }
