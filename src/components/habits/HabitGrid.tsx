@@ -16,6 +16,7 @@ function HabitGrid () {
               </p>
             </div>
             {data && data.formattedData != undefined &&
+            <div>
               <ActivityCalendar 
               blockMargin={2}
               blockSize={12}
@@ -43,7 +44,6 @@ function HabitGrid () {
                     'Nov',
                     'Dec'
                   ],
-                  // totalCount: `${totalAdherence}% adherence since ${format(subMonths(Date.now(), 6), "MMM do")}`,
                   weekdays: [
                     'Sun',
                     'Mon',
@@ -54,7 +54,9 @@ function HabitGrid () {
                     'Sat'
                   ]
                 }}
-              />            
+              />      
+              <div className="flex justify-between mt-1 tracking-tight font-light text-xs text-center w-full"><span>{data.formattedData[0]?.date.substring(5).replace(/-/g, "/")}</span><span>{data.formattedData[data.formattedData.length - 1]?.date.substring(5).replace(/-/g, "/")}</span></div>     
+              </div> 
             }
         </div>
     )
