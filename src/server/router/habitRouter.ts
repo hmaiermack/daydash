@@ -63,8 +63,7 @@ export const habitRouter = createRouter()
             const intervalData: GraphDay[] = []
 
             const formattedData: Day[] = []
-            
-            //populate the intervalData with proplerly formatted date
+
             intervalArray.forEach(date => {
                 intervalData.push({
                     date,
@@ -72,43 +71,18 @@ export const habitRouter = createRouter()
                     level: 0
                 })
             })    
-
-            // intervalArray.forEach(date => {
-            //     let dateString = format(date, "yyyy-MM-dd")
-            //     intervalData.push({
-            //         date: dateString,
-            //         count: 0,
-            //         level: 0
-            //     })
-            // })    
-
-            // intervalData.forEach(item => {
-            //     const weekday = parseInt(format(parseISO(item.date), "i"))
-            //     let completedCount = 0
-
-            //     if(!firstHabitSixMonthsOld) {
-            //         habits.forEach(habit => {
-            //             if(isAfter(habit.createdAt, new Date(item.date))) {
-            //                 if(habit.habitDays[weekday-1] == true) item.count += 1
-            //             }
-            //         }
-            //         )
-            //     }
-
-            //     if(firstHabitSixMonthsOld) {
-            //         habits.forEach(habit => {
-            //             if(habit.habitDays[weekday-1] == true) item.count += 1
-            //         })
-            //     }
-
     
             let totalHabits: number = 0
             let totalCompletedHabits: number = 0
             let totalAdherencePercentage: number = 0
+
     
             intervalData.forEach(item => {
                 let completedCount = 0
                 const weekday = getDay(item.date)
+
+                //if first habit is newer than 6months don't add count to items before first habit created date
+                //we still want these array items to exist so the graph looks nice even when empty
 
                 if(!firstHabitSixMonthsOld) {
                     habits.forEach(habit => {
@@ -122,7 +96,8 @@ export const habitRouter = createRouter()
                         if(habit.habitDays[weekday-1] == true) item.count += 1
                     })
                 }
-    
+                
+                //to help determine total adherence of all items we assign completedCount and totalHabits externally of function scope
                 completedHabits.forEach(completedHabit => {
                     if(isSameDay(item.date, completedHabit.dateCompleted)) completedCount += 1
                 })
