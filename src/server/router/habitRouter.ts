@@ -20,8 +20,25 @@ export const habitRouter = createRouter()
                 }
             })
 
+            const completedHabits = await ctx.prisma.completedHabit.findMany({
+                where: {
+                    userId: ctx.session?.user.id,
+                    dateCompleted: {
+                        gte: startOfToday(),
+                        lte: endOfToday()
+                    }
+                }
+            })
+            const habitsWithCompleted = habits.map(habit => {
+                const isCompleted = completedHabits.some(completedHabit => completedHabit.habitId == habit.id)
+                return {...habit, isCompleted}
+            })
+            
+            habitsWithCompleted.sort((a, b) => (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)))
+
+
             if(!habits) throw new TRPCError({message: "Something went wrong.", code:"INTERNAL_SERVER_ERROR"})
-            return habits
+            return habitsWithCompleted
         }
     })
     .query("habit-graph", {

@@ -4,12 +4,12 @@ import HabitCheckButton from "./HabitCheckButton";
 interface IHabitRowProps {
     id: string,
     name: string,
-    remindTime?: string,
+    remindTime: string | null,
     isCompleted: boolean,
 }
 
 function HabitRow({
-    id, name, isCompleted, remindTime = undefined
+    id, name, isCompleted, remindTime = null
 }: IHabitRowProps) {
  return (
     <div key={id} className="flex md:w-64 bg-blue-200 p-2 rounded items-center justify-between">
