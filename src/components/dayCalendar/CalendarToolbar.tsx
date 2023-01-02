@@ -144,7 +144,7 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
     }, [filterOptions])
 
   return (
-    <div className='flex w-full items-center px-4 py-4 justify-between'>
+    <div className='flex flex-col md:flex-row w-full items-center px-4 py-4 justify-between'>
         <div className='flex items-center '>
             <button className='border rounded-sm py-1 px-2 uppercase tracking-wide text-gray-700 text-xs font-bold hover:bg-slate-100'
                 onClick={handleToday}>

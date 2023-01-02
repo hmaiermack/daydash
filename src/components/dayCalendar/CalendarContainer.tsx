@@ -87,7 +87,7 @@ const CalendarContainer = () => {
   return (
     <>
         <CalendarToolbar selectedDisplay={selectedDisplay} setSelectedDisplay={setSelectedDisplay} tags={taskData?.tags}/>
-        <div className='grid min-h-[700px] px-8' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
+        <div className='grid min-h-[700px] px-8 overflow-x-auto' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
             <div></div>
                 {days.map((day) => {
                     return (
