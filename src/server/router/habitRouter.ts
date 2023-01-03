@@ -240,47 +240,55 @@ export const habitRouter = createRouter()
             })
         }
     })
-    .mutation("do-habit", {
+    .mutation("toggle-habit-completion", {
         input: z.object({
-            habitId: z.string().cuid()
+            habitId: z.string().cuid(),
+            isComplete: z.boolean()
         }),
         async resolve({input, ctx }) {
-            const completedHabit = await ctx.prisma.completedHabit.create({
-                data: {
-                    habit: {
-                        connect: {
-                            id: input.habitId
-                        }
-                    },
-                    user: {
-                        connect: {
-                            id: ctx.session?.user.id
-                        }
-                    }
+            console.log("in toggle", input.isComplete)
+            const habit = await ctx.prisma.habit.findUnique({
+                where: {
+                    id: input.habitId
                 }
             })
 
-            return completedHabit
-        }
-    })
-    .mutation("undo-habit", {
-        input: z.object({
-            habitId: z.string().cuid()
-        }),
-        async resolve({input, ctx }) {
+            if(!habit) throw new TRPCError({ message: "Habit not found.", code:"NOT_FOUND"})
+
             const startOfDay = startOfToday()
             const endOfDay = endOfToday()
-    
-            await ctx.prisma.completedHabit.deleteMany({
-                where: {
-                    habitId: input.habitId,
-                    dateCompleted: {
-                        gte: startOfDay,
-                        lt: endOfDay
-                    }
+
+            if(input.isComplete === true){
+                    console.log("in isComplete")
+                    const deleted = await ctx.prisma.completedHabit.deleteMany({
+                        where: {
+                            habitId: habit.id,
+                            dateCompleted: {
+                                gte: startOfDay,
+                                lt: endOfDay
+                            }
+                        }
+                    })
+                    return {message: "Successfully unchecked habit"}
                 }
-            })
+                else {
+                    console.log("in is not complete")
+                    const completedHabit = await ctx.prisma.completedHabit.create({
+                        data: {
+                            habit: {
+                                connect: {
+                                    id: habit.id
+                                }
+                            },
+                            user: {
+                                connect: {
+                                    id: ctx.session?.user.id
+                                }
+                            }
+                        }
+                    })
+        
+                    return completedHabit
+            }
         }
-    
-        }
-    )
+    })

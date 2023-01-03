@@ -132,6 +132,6 @@ model CompletedHabit {
   user User @relation(fields: [userId], references: [id])
   userId String
 
-  @@index([dateCompleted])
+  @@index([dateCompleted, habitId])
   @@map("completedHabits")
 }
