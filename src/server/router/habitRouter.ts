@@ -1,3 +1,4 @@
+import { Habit } from "@prisma/client"
 import { TRPCError } from "@trpc/server"
 import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday, isBefore, isAfter, getDay } from "date-fns"
 import { Day } from "react-activity-calendar"
@@ -19,6 +20,15 @@ export const habitRouter = createRouter()
                     userId: ctx.session?.user.id
                 }
             })
+            const reducedHabits = habits.reduce((acc, habit) => {
+                const day = getDay(new Date())
+                if (habit.habitDays[day] == true) {
+                    acc.push(habit)
+                }
+                return acc
+            }, [] as Habit[])
+
+
 
             const completedHabits = await ctx.prisma.completedHabit.findMany({
                 where: {
@@ -29,7 +39,7 @@ export const habitRouter = createRouter()
                     }
                 }
             })
-            const habitsWithCompleted = habits.map(habit => {
+            const habitsWithCompleted = reducedHabits.map(habit => {
                 const isCompleted = completedHabits.some(completedHabit => completedHabit.habitId == habit.id)
                 return {...habit, isCompleted}
             })
