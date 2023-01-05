@@ -7,8 +7,8 @@ function HabitGrid () {
 
 
     return (
-        <div className="w-full lg:w-5/12 bg-blue-200 p-4 flex flex-col justify-center items-center gap-1 rounded text-left">
-            <div className="flex flex-col">
+        <div className="w-full lg:w-5/12 h-fit bg-blue-200 p-4 flex flex-col justify-center items-center gap-1 rounded text-left">
+            <div className="flex flex-col self-start">
               <h2 className="font-bold text-2xl my-1">Habit Tracker</h2>
               <p className="font-light text-left text-sm px-4 pb-4 max-w-prose">
                 {data ? data.message : ''

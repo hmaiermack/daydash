@@ -1,6 +1,7 @@
+import { Switch } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import React, { Fragment, useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { trpc } from "../../utils/trpc";
 import HabitRow from "./HabitList/HabitRow";
@@ -30,7 +31,7 @@ function HabitList() {
         saturday: z.boolean()
     })
 
-    const { register, handleSubmit, formState: { errors }, watch, reset } = useForm<Inputs>({
+    const { register, handleSubmit, formState: { errors }, watch, reset, control } = useForm<Inputs>({
         defaultValues: {
             habitName: '',
             sunday: true,
@@ -70,7 +71,7 @@ function HabitList() {
 
 
 return (
-    <div className="bg-slate-100 rounded py-2 px-4 md:h-80 flex-grow flex flex-col justify-between">
+    <div className="bg-slate-100 rounded py-2 px-4 md:min-h-[20rem] flex-grow flex flex-col justify-between">
         <div>
         <h2 className="font-semibold text-lg self-start text-gray-600">Your Habits</h2>
         {habitData && 
@@ -81,39 +82,140 @@ return (
         </div>
         {newHabitInput &&    
             <form onSubmit={handleSubmit(onSubmit)}>
-                <label htmlFor="habitName">Habit Name</label>
-                <input type="text" className="bg-white p-2 rounded" {...register("habitName")}/>
-                    <label htmlFor="sunday">Sun</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("sunday")}/>
-                    <label htmlFor="monday">Mon</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("monday")} />
-                    <label htmlFor="tuesday">Tues</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("tuesday")} />
-                    <label htmlFor="wednesday">Weds</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("wednesday")} />
-                    <label htmlFor="thursday">Thurs</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("thursday")} />
-                    <label htmlFor="friday">Fri</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("friday")} />
-                    <label htmlFor="saturday">Sat</label>
-                    <input type="checkbox" className="bg-white p-2 rounded" {...register("saturday")} />
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="habitName">Habit Name</label>
+                <input type="text" className={`appearance-none block bg-white text-gray-900 border border-gray-500 font-medium ${errors.habitName ? 'outline-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("habitName")}/>
+                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-4">Select the days of the week you want to do this habit</label>
                 <div className="flex w-full justify-between mt-4">
-                    {errors && errors.habitName && <p className="text-red-500">{errors.habitName.message}</p>
-                    }
-                    {errors && errors.sunday && <p className="text-red-500">{errors.sunday.message}</p>
-                    }
-                    {errors && errors.monday && <p className="text-red-500">{errors.monday.message}</p>}
-                    {errors && errors.tuesday && <p className="text-red-500">{errors.tuesday.message}</p>}
-                    {errors && errors.wednesday && <p className="text-red-500">{errors.wednesday.message}</p>}
-                    {errors && errors.thursday && <p className="text-red-500">{errors.thursday.message}</p>}
-                    {errors && errors.friday && <p className="text-red-500">{errors.friday.message}</p>}
-                    {errors && errors.saturday && <p className="text-red-500">{errors.saturday.message}</p>}
-                    <button type="button" className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white p-2 rounded max-w-fit" onClick={handleClose}>
+                    <div className="flex gap-2 flex-grow flex-wrap">
+                    <Controller
+                            name="sunday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } relative inline-flex w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Sun</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                        <Controller
+                            name="monday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } relative inline-flex w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Mon</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                        <Controller
+                            name="tuesday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } relative inline-flex w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Tues</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                        <Controller
+                            name="wednesday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } relative inline-flex w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Weds</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                        <Controller
+                            name="thursday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } relative inline-flex w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Thurs</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                        <Controller
+                            name="friday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } relative inline-flex w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Fri</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                        <Controller
+                            name="saturday"
+                            control={control}
+                            render={({ field: {onChange} }) => (
+                                <Switch onChange={onChange} defaultChecked={true} as={Fragment}>
+                                {({ checked }) => (
+                                <button
+                                    className={`${
+                                    checked ? 'bg-green-400 text-white hover:bg-green-500 hover:cursor-pointer' : 'bg-red-400 text-white hover:bg-red-500 hover:cursor-pointer'
+                                    } block w-12 py-2 items-center`}
+                                >
+                                    <span className="mx-auto">Sat</span>
+                                </button>
+                                )}
+                            </Switch>
+                            )}
+                        />  
+                    </div>
+                </div>
+                <div className="flex gap-12 mt-4">
+                <button type="button" className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white p-2 rounded max-w-fit" onClick={handleClose}>
                         Cancel
                     </button>
-                    <button type="submit" className="bg-green-400 hover:bg-green-500 hover:cursor-pointer text-white p-2 rounded max-w-fit">
+                    <button type="submit" className="bg-blue-400 hover:bg-blue-500 hover:cursor-pointer text-white p-2 rounded max-w-fit">
                         Create Habit
                     </button>
+
                 </div>
             </form>
             }        
