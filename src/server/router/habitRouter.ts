@@ -244,9 +244,12 @@ export const habitRouter = createRouter()
             habitId: z.string().cuid()
         }),
         async resolve({input, ctx }) {
-            await ctx.prisma.habit.delete({
+            await ctx.prisma.habit.update({
                 where: {
                     id: input.habitId
+                },
+                data: {
+                    deleted: true
                 }
             })
         }
