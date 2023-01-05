@@ -259,7 +259,6 @@ export const habitRouter = createRouter()
             const endOfDay = endOfToday()
 
             if(input.isComplete === true){
-                    console.log("in isComplete")
                     const deleted = await ctx.prisma.completedHabit.deleteMany({
                         where: {
                             habitId: habit.id,
@@ -272,7 +271,6 @@ export const habitRouter = createRouter()
                     return {message: "Successfully unchecked habit"}
                 }
                 else {
-                    console.log("in is not complete")
                     const completedHabit = await ctx.prisma.completedHabit.create({
                         data: {
                             habit: {
