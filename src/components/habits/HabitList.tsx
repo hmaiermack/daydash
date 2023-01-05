@@ -21,7 +21,7 @@ function HabitList() {
     const [newHabitInput, setNewHabitInput] = useState(false)
 
     const schema = z.object({
-        habitName: z.string(),
+        habitName: z.string().min(1),
         sunday: z.boolean(),
         monday: z.boolean(),
         tuesday: z.boolean(),
@@ -29,6 +29,17 @@ function HabitList() {
         thursday: z.boolean(),
         friday: z.boolean(),
         saturday: z.boolean()
+    }).superRefine((val, ctx) => {
+        const days = [val.sunday, val.monday, val.tuesday, val.wednesday, val.thursday, val.friday, val.saturday]
+        if (!days.includes(true)) {
+            return ctx.addIssue({
+                //kinda gross to set path like this, but it works
+                path: ['sunday'],
+                code: z.ZodIssueCode.custom,
+                message: "You must select at least one day to do a habit.",
+                fatal: true,
+            })
+        }
     })
 
     const { register, handleSubmit, formState: { errors }, watch, reset, control } = useForm<Inputs>({
@@ -44,7 +55,7 @@ function HabitList() {
         },
         resolver: zodResolver(schema),
     })
-    console.log(watch())
+    console.log(errors)
     const utils = trpc.useContext()
     const { data: habitData } = trpc.useQuery(['habits.habits'])
     const handleClose = () => {
@@ -81,10 +92,12 @@ return (
         }
         </div>
         {newHabitInput &&    
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="habitName">Habit Name</label>
-                <input type="text" className={`appearance-none block bg-white text-gray-900 border border-gray-500 font-medium ${errors.habitName ? 'outline-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("habitName")}/>
+                <input type="text" className={`appearance-none block bg-white text-gray-900 border font-medium ${errors.habitName ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("habitName")}/>
+                {errors.habitName && <p className="text-red-500 text-xs italic">Please enter a habit name</p>}
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-4">Select the days of the week you want to do this habit</label>
+                {errors.sunday && <p className="text-red-500 text-xs italic">You must select at least one day to do a habit.</p>}
                 <div className="flex w-full justify-between mt-4">
                     <div className="flex gap-2 flex-grow flex-wrap">
                     <Controller
