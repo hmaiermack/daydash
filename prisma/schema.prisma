@@ -115,6 +115,8 @@ model Habit {
   user User @relation(fields: [userId], references: [id])
   userId String
 
+  deleted Boolean @default(false)
+
   completedHabits CompletedHabit[]
 
   @@index([createdAt])

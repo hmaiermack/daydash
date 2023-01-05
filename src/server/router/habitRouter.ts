@@ -17,7 +17,8 @@ export const habitRouter = createRouter()
         async resolve({ ctx }) {
             const habits = await ctx.prisma.habit.findMany({
                 where: {
-                    userId: ctx.session?.user.id
+                    userId: ctx.session?.user.id,
+                    deleted: false
                 }
             })
             const reducedHabits = habits.reduce((acc, habit) => {
