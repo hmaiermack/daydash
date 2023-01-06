@@ -11,6 +11,7 @@ import EditModal from './EditModal'
 import CalendarToolbar from './CalendarToolbar'
 import DaysBanner from './DaysBanner'
 import TimeColumn from './TimeColumn'
+import useCreateColumns from '../../hooks/useCreateColumns'
 
 //TODO: break this up into smaller components
 //TODO: render a skeleton calendar while loading to prevent flicker
@@ -21,52 +22,11 @@ const CalendarContainer = () => {
     const { state: EditModalState } = React.useContext(EditModalContext)
     const [selectedDisplay, setSelectedDisplay] = React.useState(CalendarState.display)
 
-
-    
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {startDate: CalendarState.dateRangeStart, endDate: CalendarState.dateRangeEnd}]);  
 
-    const cols: (Task & {
-        tag: {
-            name: string;
-            colorHexValue: string;
-        } | null;
-    })[][] = []
-    const [data, setData] = useState(() => [...cols])
-    
-    const days: Date[] = eachDayOfInterval({
-      start: CalendarState.dateRangeStart,
-      end: CalendarState.dateRangeEnd
-    })
-  let hours: Date[] = []
-  if(taskData) {
-    hours = eachHourOfInterval({start: addHours(CalendarState.dateRangeStart, taskData?.timeRangeStart), end: addHours(CalendarState.dateRangeStart, taskData?.timeRangeEnd - 1)})
-  }
-    useEffect(() => {
-        if(taskData?.tasks != undefined) {
-            //this is nasty
-            //probably should just get userInfo from api and make it available to whole app
-            //alternatively could pass it thru tasks.task as an object {timeStart, timeEnd, tasks: [...]}?
-                let taskArr = taskData.tasks
-                days.forEach((day, idx) => {
-                    let temp: (Task & {
-                        tag: {
-                            name: string;
-                            colorHexValue: string;
-                        } | null;
-                    })[] = []
-                    taskArr.forEach((task, index) => {
-                        if(isSameDay(task!.timeStart, day) && task) {
-                            temp = [...temp, task]
-                        }
-                    })
-                    cols[idx] = temp
-                })
-            setData([...cols])
-          }
-          //eslint-disable-next-line
-    }, [taskData, CalendarState.display])
 
-    const lastHour = hours[hours.length - 1]
+    
+    const {columns, hours, lastHour, days} = useCreateColumns(taskData)
 
     const [template, setTemplate] = useState("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
 
@@ -89,41 +49,33 @@ const CalendarContainer = () => {
   return (
     <>
         <CalendarToolbar selectedDisplay={selectedDisplay} setSelectedDisplay={setSelectedDisplay} tags={taskData?.tags}/>
-        <div className='grid min-h-[700px] px-8 overflow-x-auto' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
-            <div></div>
-                {days.map((day) => {
-                    return (
-                        // <div key={day.toDateString()} className={`${CalendarState.today && isSameDay(day, CalendarState.today) ? 'bg-blue-200' : ''} flex p-3 flex-col justify-center items-center hover:bg-slate-50 hover:cursor-pointer`} onClick={() => {
-                        //     dispatch({type: 'changeDisplay', payload: {
-                        //         display: 'one',
-                        //         dateRangeStart: startOfDay(day),
-                        //         dateRangeEnd: endOfDay(day)
-                        //     }})
-                        //     setSelectedDisplay('one')
-                        // }}>
-                        //     <div>{format(day, "eeee")}</div>
-                        //     <div>{format(day, "d")}</div>
-                        // </div>
-                        <DaysBanner day={day} setSelectedDisplay={setSelectedDisplay} />
-                    )
-                })}
-                {taskData &&
-                    <TimeColumn hours={hours} lastHour={lastHour} timeRangeEnd={taskData.timeRangeEnd} timeRangeStart={taskData.timeRangeStart} />    
-                }
-
-                {   taskData && days.length > 0 &&
-                    data.map((col, idx) => {
+        <div className='h-[500px] overflow-y-auto'>
+            <div className='grid min-h-[700px] px-8 pb-8 overflow-x-auto overflow-y-hidden' style={{gridTemplateColumns: template, gridTemplateRows: "48px 1fr"}}>
+                <div></div>
+                    {days.map((day) => {
                         return (
-                            <Day tasks={col} day={days[idx]} colIdx={idx} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} key={idx} />
-                            )
-                    })
-                }
-                {
-                    CreateModalState.selectedTime && taskData && <CreateModal selectedTime={CreateModalState.selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
-                }
-                {
-                    EditModalState.isEditModalOpen && taskData && <EditModal timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
-                }
+                            <DaysBanner day={day} key={day.toISOString()} setSelectedDisplay={setSelectedDisplay} />
+                        )
+                    })}
+                    {taskData &&
+                        <TimeColumn hours={hours} lastHour={lastHour} timeRangeEnd={taskData.timeRangeEnd} timeRangeStart={taskData.timeRangeStart} />    
+                    }
+                    {   taskData &&
+                        columns.map((col, idx) => {
+                            return (
+                                <Day tasks={col} day={days[idx]} colIdx={idx} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} key={idx} />
+                                )
+                        })
+                    }
+
+                    {
+                        CreateModalState.selectedTime && taskData && <CreateModal selectedTime={CreateModalState.selectedTime} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
+                    }
+                    {
+                        EditModalState.isEditModalOpen && taskData && <EditModal timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} tasks={taskData.tasks} tags={taskData.tags}/>
+                    }
+            </div>
+
         </div>
      </>
   )
