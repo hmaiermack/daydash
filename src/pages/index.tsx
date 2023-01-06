@@ -19,7 +19,6 @@ const Home: NextPage = () => {
       <EditModalProvider>
         <CreateModalProvider>
           <EventInteractionModalProvider>
-
             <div>
             <CalendarContainer />
 

@@ -6,7 +6,7 @@ const DaysBanner = ({day, setSelectedDisplay}: {day: Date, setSelectedDisplay: R
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
 
   return (
-    <div key={day.toDateString()} className={`${CalendarState.today && isSameDay(day, CalendarState.today) ? 'bg-blue-200' : ''} flex p-3 flex-col justify-center items-center hover:bg-slate-50 hover:cursor-pointer`} onClick={() => {
+    <div key={day.toDateString()} className={`${CalendarState.today && isSameDay(day, CalendarState.today) ? 'bg-blue-200' : ''} min-w-[100px] flex p-3 flex-col justify-center items-center hover:bg-slate-50 hover:cursor-pointer`} onClick={() => {
         dispatch({type: 'changeDisplay', payload: {
             display: 'one',
             dateRangeStart: startOfDay(day),

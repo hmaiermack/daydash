@@ -10,6 +10,7 @@ import { EditModalContext } from '../../context/EditModalContext'
 import EditModal from './EditModal'
 import CalendarToolbar from './CalendarToolbar'
 import DaysBanner from './DaysBanner'
+import TimeColumn from './TimeColumn'
 
 //TODO: break this up into smaller components
 //TODO: render a skeleton calendar while loading to prevent flicker
@@ -106,34 +107,15 @@ const CalendarContainer = () => {
                         <DaysBanner day={day} setSelectedDisplay={setSelectedDisplay} />
                     )
                 })}
-                {taskData && 
-                    <div className={`grid relative grid-cols-1 grid-rows-[${taskData?.timeRangeEnd - taskData?.timeRangeStart}]`}>
-                        {hours && 
-                            hours.map((hour, idx) => {
-                                return (
-                                    <div key={`${hour.toDateString()} ${idx}`} className='relative'>
-                                        <div className='text-gray-500 text-sm absolute top-[-11px]'>{format(hour, "h:mm aa")}</div>
-                                        <span className='content-none h-[1px] absolute top-0 bg-gray-200 w-4 left-[85%] '></span>
-                                    </div>
-                                )
-                            })    
-                        }
-                        {lastHour &&
-                            <span className='text-gray-500 text-sm absolute bottom-[-9px]'>
-                                {
-                                    format(addHours(lastHour, 1), "h:mm aa")
-                                }
-                            </span>
-                        }
-                        <span className='content-none h-[1px] absolute bottom-0 bg-gray-200 w-4 left-[85%] '></span>
-                    </div>        
+                {taskData &&
+                    <TimeColumn hours={hours} lastHour={lastHour} timeRangeEnd={taskData.timeRangeEnd} timeRangeStart={taskData.timeRangeStart} />    
                 }
 
                 {   taskData && days.length > 0 &&
                     data.map((col, idx) => {
                         return (
                             <Day tasks={col} day={days[idx]} colIdx={idx} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} key={idx} />
-                        )
+                            )
                     })
                 }
                 {
