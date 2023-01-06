@@ -9,6 +9,7 @@ import { CalendarContext } from '../../context/CalendarContext'
 import { EditModalContext } from '../../context/EditModalContext'
 import EditModal from './EditModal'
 import CalendarToolbar from './CalendarToolbar'
+import DaysBanner from './DaysBanner'
 
 //TODO: break this up into smaller components
 //TODO: render a skeleton calendar while loading to prevent flicker
@@ -91,17 +92,18 @@ const CalendarContainer = () => {
             <div></div>
                 {days.map((day) => {
                     return (
-                        <div key={day.toDateString()} className={`${CalendarState.today && isSameDay(day, CalendarState.today) ? 'bg-blue-200' : ''} flex p-3 flex-col justify-center items-center hover:bg-slate-50 hover:cursor-pointer`} onClick={() => {
-                            dispatch({type: 'changeDisplay', payload: {
-                                display: 'one',
-                                dateRangeStart: startOfDay(day),
-                                dateRangeEnd: endOfDay(day)
-                            }})
-                            setSelectedDisplay('one')
-                        }}>
-                            <div>{format(day, "eeee")}</div>
-                            <div>{format(day, "d")}</div>
-                        </div>
+                        // <div key={day.toDateString()} className={`${CalendarState.today && isSameDay(day, CalendarState.today) ? 'bg-blue-200' : ''} flex p-3 flex-col justify-center items-center hover:bg-slate-50 hover:cursor-pointer`} onClick={() => {
+                        //     dispatch({type: 'changeDisplay', payload: {
+                        //         display: 'one',
+                        //         dateRangeStart: startOfDay(day),
+                        //         dateRangeEnd: endOfDay(day)
+                        //     }})
+                        //     setSelectedDisplay('one')
+                        // }}>
+                        //     <div>{format(day, "eeee")}</div>
+                        //     <div>{format(day, "d")}</div>
+                        // </div>
+                        <DaysBanner day={day} setSelectedDisplay={setSelectedDisplay} />
                     )
                 })}
                 {taskData && 
