@@ -54,6 +54,7 @@ export const habitRouter = createRouter()
     })
     .query("habit-graph", {
         async resolve({ ctx }) {
+            console.log(ctx.session)
             const habits = await ctx.prisma.habit.findMany({
                 where: {
                     userId: ctx.session?.user.id
@@ -63,7 +64,7 @@ export const habitRouter = createRouter()
                 }
             })
 
-            if(!habits) return {message: "Create a habit to see your adherence graph.", code: "NO_HABITS"}
+            if(!habits || habits.length === 0) return {message: "Create a habit to see your adherence graph.", code: "NO_HABITS"}
 
     
 
