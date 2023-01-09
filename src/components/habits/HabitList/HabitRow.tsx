@@ -59,7 +59,7 @@ function HabitRow({
                     )}
             </div>
         </div>
-        {isEditOpen && <EditHabitModal habitId={id} habitName={name} habitDays={habitDays} />}
+        {isEditOpen && <EditHabitModal habitId={id} habitName={name} habitDays={habitDays} setIsEditOpen={setIsEditOpen} />}
     </div>
  )
 }

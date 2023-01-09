@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import React, { Fragment } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { trpc } from '../../../utils/trpc'
 
 type Inputs = {
     habitName: string,
@@ -15,7 +16,7 @@ type Inputs = {
     saturday: boolean,
 }
 
-const EditHabitModal = ({habitId, habitName, habitDays}: {habitId: string, habitName: string, habitDays: boolean[]}) => {
+const EditHabitModal = ({habitId, habitName, habitDays, setIsEditOpen}: {habitId: string, habitName: string, habitDays: boolean[], setIsEditOpen: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const schema = z.object({
         habitName: z.string().min(1),
         sunday: z.boolean(),
@@ -51,9 +52,36 @@ const EditHabitModal = ({habitId, habitName, habitDays}: {habitId: string, habit
         },
         resolver: zodResolver(schema),
     })
+    const utils = trpc.useContext()
+
+    const updateHabit = trpc.useMutation('habits.update-habit', {
+        onSuccess: () => {
+            utils.refetchQueries(['habits.habits'])
+            setIsEditOpen(false)
+        }
+    })
 
     const onSubmit = async (data: Inputs) => {
-        console.log(data)
+        await updateHabit.mutateAsync({
+            habitId: habitId,
+            name: data.habitName,
+            habitDays: [data.sunday, data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday]
+        })
+    }
+
+    const handleClose = () => {
+        reset({
+            habitName: habitName,
+            sunday: habitDays[0],
+            monday: habitDays[1],
+            tuesday: habitDays[2],
+            wednesday: habitDays[3],
+            thursday: habitDays[4],
+            friday: habitDays[5],
+            saturday: habitDays[6],
+        })
+
+        setIsEditOpen(false)
     }
 
 
@@ -195,11 +223,11 @@ const EditHabitModal = ({habitId, habitName, habitDays}: {habitId: string, habit
                         </div>
                 </div>
                 <div className="flex gap-12 mt-4">
-                <button type="button" className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white p-2 rounded max-w-fit">
+                <button type="button" className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white p-2 rounded max-w-fit" onClick={handleClose}>
                         Cancel
                     </button>
                     <button type="submit" className="bg-blue-400 hover:bg-blue-500 hover:cursor-pointer text-white p-2 rounded max-w-fit">
-                        Create Habit
+                        Update Habit
                     </button>
 
                 </div>
