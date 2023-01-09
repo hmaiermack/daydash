@@ -21,7 +21,9 @@ export const authOptions: NextAuthOptions = {
       issuer: process.env.AUTH0_ISSUER,
     }),
     CredentialsProvider({
-      credentials: {},
+      credentials: {
+
+      },
       // @ts-ignore
       async authorize(credentials, _) {
         const { email, password } = credentials as {
@@ -53,8 +55,10 @@ export const authOptions: NextAuthOptions = {
       session = {
         ...session,
         user: {
+          //previously this was user.id, but after moving to credentials provider user is undefined
+          // not sure why this change happened
           // @ts-ignore
-          id: user.id, 
+          id: token.user.id, 
           ...session.user
         }
       }
