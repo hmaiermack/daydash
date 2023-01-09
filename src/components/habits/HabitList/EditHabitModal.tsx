@@ -1,10 +1,8 @@
-import { Switch } from "@headlessui/react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { Fragment, useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import { trpc } from "../../utils/trpc";
-import HabitRow from "./HabitList/HabitRow";
+import { Switch } from '@headlessui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React, { Fragment } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 type Inputs = {
     habitName: string,
@@ -17,9 +15,7 @@ type Inputs = {
     saturday: boolean,
 }
 
-function HabitList() {
-    const [newHabitInput, setNewHabitInput] = useState(false)
-
+const EditHabitModal = ({habitId, habitName, habitDays}: {habitId: string, habitName: string, habitDays: boolean[]}) => {
     const schema = z.object({
         habitName: z.string().min(1),
         sunday: z.boolean(),
@@ -44,61 +40,36 @@ function HabitList() {
 
     const { register, handleSubmit, formState: { errors }, watch, reset, control } = useForm<Inputs>({
         defaultValues: {
-            habitName: '',
-            sunday: true,
-            monday: true,
-            tuesday: true,
-            wednesday: true,
-            thursday: true,
-            friday: true,
-            saturday: true,
+            habitName: habitName,
+            sunday: habitDays[0],
+            monday: habitDays[1],
+            tuesday: habitDays[2],
+            wednesday: habitDays[3],
+            thursday: habitDays[4],
+            friday: habitDays[5],
+            saturday: habitDays[6],
         },
         resolver: zodResolver(schema),
     })
-    console.log(errors)
-    const utils = trpc.useContext()
-    const { data: habitData } = trpc.useQuery(['habits.habits'])
-    const handleClose = () => {
-        setNewHabitInput(false)
-        reset()
-    }
-    const newHabit = trpc.useMutation('habits.new-habit', {
-        onSuccess() {
-            utils.invalidateQueries(['habits.habits'])
-            handleClose()
-        },
-    })
 
-
-    const onSubmit: SubmitHandler<Inputs> = async (data) => {
-        console.log("submit handler", data)
-        newHabit.mutateAsync({
-            name: data.habitName,
-            habitDays: [data.sunday, data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday]
-        })
+    const onSubmit = async (data: Inputs) => {
+        console.log(data)
     }
 
 
-
-
-return (
-    <div className="bg-slate-100 rounded py-2 px-4 md:min-h-[20rem] flex-grow flex flex-col justify-between">
-        <div>
-        <h2 className="font-semibold text-lg self-start text-gray-600">Your Habits</h2>
-        {habitData && 
-            <div className="flex flex-col gap-4 md:flex-wrap max-h-full overflow-auto">
-                {habitData.map((habit) => ( <HabitRow id={habit.id} key={habit.id} name={habit.name} isCompleted={habit.isCompleted} remindTime={null} habitDays={habit.habitDays} /> ))}
-            </div>
-        }
-        </div>
-        {newHabitInput &&    
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
+  return (
+    <div className='absolute max-w-[15rem] sm:max-w-full'>
+            <form onSubmit={handleSubmit(onSubmit)} className="relative top-[45px] bg-slate-50 shadow-lg rounded z-50 p-4">
+                <div className='flex flex-col'>
+                <div>
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="habitName">Habit Name</label>
                 <input type="text" className={`appearance-none block bg-white text-gray-900 border font-medium ${errors.habitName ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("habitName")}/>
                 {errors.habitName && <p className="text-red-500 text-xs italic">Please enter a habit name</p>}
+                </div>
+                <div className=''>
                 <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-4">Select the days of the week you want to do this habit</label>
                 {errors.sunday && <p className="text-red-500 text-xs italic">You must select at least one day to do a habit.</p>}
-                <div className="flex w-full justify-between mt-4">
+                <div className="flex justify-between mt-4">
                     <div className="flex gap-2 flex-grow flex-wrap">
                     <Controller
                             name="sunday"
@@ -220,9 +191,11 @@ return (
                             )}
                         />  
                     </div>
+                    </div>
+                        </div>
                 </div>
                 <div className="flex gap-12 mt-4">
-                <button type="button" className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white p-2 rounded max-w-fit" onClick={handleClose}>
+                <button type="button" className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white p-2 rounded max-w-fit">
                         Cancel
                     </button>
                     <button type="submit" className="bg-blue-400 hover:bg-blue-500 hover:cursor-pointer text-white p-2 rounded max-w-fit">
@@ -231,14 +204,8 @@ return (
 
                 </div>
             </form>
-            }        
-            { !newHabitInput && 
-            <button className="bg-green-400 hover:bg-green-500 hover:cursor-pointer text-white p-2 rounded max-w-fit mt-4" onClick={() => setNewHabitInput(true)}>
-                Create new habit
-            </button>
-        }
     </div>
-)
+  )
 }
 
-export default HabitList
+export default EditHabitModal

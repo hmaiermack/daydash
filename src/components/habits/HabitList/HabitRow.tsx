@@ -1,7 +1,8 @@
 import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { trpc } from "../../../utils/trpc";
+import EditHabitModal from "./EditHabitModal";
 import HabitCheckButton from "./HabitCheckButton";
 
 interface IHabitRowProps {
@@ -9,12 +10,14 @@ interface IHabitRowProps {
     name: string,
     remindTime: string | null,
     isCompleted: boolean,
+    habitDays: boolean[]
 }
 
 function HabitRow({
-    id, name, isCompleted, remindTime = null
+    id, name, isCompleted, remindTime = null, habitDays
 }: IHabitRowProps) {
     const [isOptionsOpen, setIsOptionsOpen] = React.useState(false)
+    const [isEditOpen, setIsEditOpen] = useState(false)
 
     const utils = trpc.useContext()
 
@@ -49,13 +52,14 @@ function HabitRow({
                         </div>
                      ) : (
                             <div className="flex gap-4">
-                                <PencilIcon className="w-5 h-5 text-slate-700 hover:cursor-pointer" />
+                                <PencilIcon className="w-5 h-5 text-slate-700 hover:cursor-pointer" onClick={() => setIsEditOpen(true)}/>
                                 <TrashIcon className="w-5 h-5 text-red-500 hover:cursor-pointer" onClick={() => handleDelete()} />
                                 <XMarkIcon className="w-5 h-5 text-slate-700 hover:cursor-pointer" onClick={() => setIsOptionsOpen(false)} />
                             </div>
                     )}
             </div>
         </div>
+        {isEditOpen && <EditHabitModal habitId={id} habitName={name} habitDays={habitDays} />}
     </div>
  )
 }
