@@ -1,5 +1,5 @@
 import { Listbox, Transition } from '@headlessui/react'
-import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
+import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { Tag } from '@prisma/client'
 import { addDays, endOfDay, endOfWeek, format, isSameMonth, startOfDay, startOfWeek, subDays } from 'date-fns'
 import React, { Fragment, useEffect, useState } from 'react'
@@ -232,7 +232,7 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
         </div>
 
         </Listbox>
-                )}
+        )}
         {/* display selection */}
         <Listbox value={selectedDisplay} onChange={setSelectedDisplay}>
         <div className="relative py-1 px-2 border rounded-sm uppercase tracking-wide text-gray-700 font-semibold hover:bg-slate-100">

@@ -1,7 +1,5 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState } from 'react'
-import { startOfDay, endOfDay, addHours, eachDayOfInterval, format, isSameDay, eachHourOfInterval, subDays } from 'date-fns'
+import React, { useLayoutEffect, useState } from 'react'
 import { trpc } from '../../utils/trpc'
-import { Task } from '@prisma/client'
 import Day from './Day'
 import CreateModal from './CreateModal'
 import { CreateModalContext } from '../../context/CreateModalContext'
@@ -23,11 +21,7 @@ const CalendarContainer = () => {
     const [selectedDisplay, setSelectedDisplay] = React.useState(CalendarState.display)
 
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {startDate: CalendarState.dateRangeStart, endDate: CalendarState.dateRangeEnd}]);  
-
-
-    
     const {columns, hours, lastHour, days} = useCreateColumns(taskData)
-
     const [template, setTemplate] = useState("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
 
     useLayoutEffect(() => {
@@ -43,7 +37,6 @@ const CalendarContainer = () => {
                 break;
         }
     }, [CalendarState.display])
-
 
 
   return (
