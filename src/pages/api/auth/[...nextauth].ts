@@ -6,7 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../server/db/client";
 import { compare } from "bcrypt";
-import { string } from "zod";
 
 export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
@@ -44,7 +43,7 @@ export const authOptions: NextAuthOptions = {
       user && (token.user = user)
       return token
     },
-    async session({session, token, user}) {
+    async session({session, token}) {
       session = {
         ...session,
         user: {

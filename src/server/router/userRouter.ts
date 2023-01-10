@@ -2,14 +2,14 @@ import { TRPCError } from "@trpc/server"
 import { z } from "zod"
 import { createRouter } from "./context"
 
-export const habitRouter = createRouter()
+export const userRouter = createRouter()
     .middleware(async ({ ctx, next }) => {
         if (!ctx.session) {
             throw new TRPCError({code: "UNAUTHORIZED"})
         }
         return next()
     })
-    .mutation("change-time-range", {
+    .mutation("update-time-range", {
         input: z.object({
             timeStart: z.number(),
             timeEnd: z.number(),
