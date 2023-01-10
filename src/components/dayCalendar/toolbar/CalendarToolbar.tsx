@@ -1,9 +1,7 @@
-import { Listbox, Menu, Transition } from '@headlessui/react'
-import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon, UserCircleIcon } from '@heroicons/react/20/solid'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
 import { Tag } from '@prisma/client'
 import { addDays, endOfDay, endOfWeek, format, isSameMonth, startOfDay, startOfWeek, subDays } from 'date-fns'
-import { useSession } from 'next-auth/react'
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { CalendarContext } from '../../../context/CalendarContext'
 import { trpc } from '../../../utils/trpc'
 import DisplayMenu from './DisplayMenu'
@@ -16,8 +14,6 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
     setSelectedDisplay: React.Dispatch<React.SetStateAction< "one" | "three" | "week" | undefined >>,
     tags: Tag[] | undefined
     }) => {
-    const {data: session} = useSession()
-    console.log(session)
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
 
     const utils = trpc.useContext()
@@ -161,19 +157,17 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
                 {
                     CalendarState.display != 'one' && isSameMonth(CalendarState.dateRangeStart, CalendarState.dateRangeEnd) ?
                     `${format(CalendarState.dateRangeStart, 'MMM yyyy')}` : `${format(CalendarState.dateRangeEnd, 'MMMM yyyy')}`
-
                 }
             </span>
         </div>
         <div className='flex gap-4 flex-wrap'>
-          {tags && (
-            <FilterMenu tags={tags} filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
+        {tags && (
+          <FilterMenu tags={tags} filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
         )}
         <DisplayMenu selectedDisplay={selectedDisplay} setSelectedDisplay={setSelectedDisplay} />
         <OptionsMenu />
+      </div>
     </div>
-    </div>
-    
   )
 }
 
