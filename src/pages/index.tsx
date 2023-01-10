@@ -1,8 +1,5 @@
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
-import { signIn } from "next-auth/react";
-import useWindowSize from "../hooks/useWindowSize";
-import { Controller, useForm } from "react-hook-form";
+import { signIn, useSession } from "next-auth/react";
 import { CreateModalProvider } from "../context/CreateModalContext";
 import { EventInteractionModalProvider } from "../context/EventInteractionModalContext";
 import CalendarContainer from "../components/dayCalendar/CalendarContainer";
@@ -14,15 +11,20 @@ import HabitContainer from "../components/habits/HabitContainer";
 
 
 const Home: NextPage = () => {
+  const {status} = useSession()
   return (
     <CalendarContextProvider>
       <EditModalProvider>
         <CreateModalProvider>
           <EventInteractionModalProvider>
             <div>
-            <CalendarContainer />
-
-            <HabitContainer />
+            {status === "authenticated" ? (
+              <>
+                <CalendarContainer />
+                <HabitContainer />
+              </>
+            ) : (
+              <span>you need to sign in</span>)}
             </div>
           </EventInteractionModalProvider>
         </CreateModalProvider>

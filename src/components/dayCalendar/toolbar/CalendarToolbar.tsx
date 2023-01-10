@@ -1,10 +1,13 @@
-import { Listbox, Transition } from '@headlessui/react'
-import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/20/solid'
+import { Listbox, Menu, Transition } from '@headlessui/react'
+import { CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon, UserCircleIcon } from '@heroicons/react/20/solid'
 import { Tag } from '@prisma/client'
 import { addDays, endOfDay, endOfWeek, format, isSameMonth, startOfDay, startOfWeek, subDays } from 'date-fns'
+import { useSession } from 'next-auth/react'
 import React, { Fragment, useEffect, useState } from 'react'
-import { CalendarContext } from '../../context/CalendarContext'
-import { trpc } from '../../utils/trpc'
+import { CalendarContext } from '../../../context/CalendarContext'
+import { trpc } from '../../../utils/trpc'
+import CLink from '../../general/CLink'
+import OptionsMenu from './OptionsMenu'
 
 
 const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
@@ -12,6 +15,8 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
     setSelectedDisplay: React.Dispatch<React.SetStateAction< "one" | "three" | "week" | undefined >>,
     tags: Tag[] | undefined
     }) => {
+    const {data: session} = useSession()
+    console.log(session)
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
 
     const utils = trpc.useContext()
@@ -160,7 +165,7 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
                 }
             </span>
         </div>
-        <div className='flex gap-4'>
+        <div className='flex gap-4 flex-wrap'>
             {tags && (
         <Listbox value={filterOptions} onChange={setFilterOptions}>
         <div className="relative py-1 px-2 border rounded-sm uppercase tracking-wide text-gray-700 font-semibold hover:bg-slate-100">
@@ -280,8 +285,8 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
         </div>
 
         </Listbox>
-
-        </div>
+        <OptionsMenu />
+    </div>
     </div>
     
   )
