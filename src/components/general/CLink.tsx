@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { forwardRef, ReactChildren, ReactNode } from 'react'
+import React, { forwardRef, ReactNode } from 'react'
 // custom link component to fix weirdness with nextjs Link component
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   }
 type Ref = HTMLAnchorElement;
   
+/* eslint-disable */
 const CLink = forwardRef<Ref, Props>((props, ref) => {
     let { href, children, ...rest } = props
     return (

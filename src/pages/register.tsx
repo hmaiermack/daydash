@@ -2,7 +2,7 @@ import React from 'react'
 import { useRouter } from 'next/router'
 import { signIn } from 'next-auth/react'
 
-const register = () => {
+const Register = () => {
     const router = useRouter()
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -48,4 +48,4 @@ const register = () => {
   )
 }
 
-export default register
+export default Register
