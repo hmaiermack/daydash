@@ -21,7 +21,7 @@ const DisplayMenu = ({selectedDisplay, setSelectedDisplay}: {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <Listbox.Options className="absolute mt-4 max-h-60 -left-12 w-40 px-1 rounded-sm bg-white py-2 z-[150] shadow-2xl border">
+        <Listbox.Options className="absolute mt-4 max-h-60 right-0 w-40 px-1 rounded-sm bg-white py-2 z-[150] shadow-2xl border">
           {displayTypes.map((display, displayIdx) => (
             <Listbox.Option
               key={displayIdx}

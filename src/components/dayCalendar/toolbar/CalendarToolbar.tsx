@@ -160,12 +160,10 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
                 }
             </span>
         </div>
-        <div className='flex gap-4 flex-wrap'>
-        {tags && (
-          <FilterMenu tags={tags} filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
-        )}
-        <DisplayMenu selectedDisplay={selectedDisplay} setSelectedDisplay={setSelectedDisplay} />
-        <OptionsMenu />
+        <div className='flex gap-4 flex-wrap justify-center'>
+            <FilterMenu tags={tags} filterOptions={filterOptions} setFilterOptions={setFilterOptions} />
+            <DisplayMenu selectedDisplay={selectedDisplay} setSelectedDisplay={setSelectedDisplay} />
+            <OptionsMenu />
       </div>
     </div>
   )

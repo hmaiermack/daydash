@@ -6,7 +6,7 @@ import React, { Fragment } from 'react'
 const FilterMenu = ({filterOptions, setFilterOptions, tags}: {
     filterOptions: Tag | null,
     setFilterOptions: React.Dispatch<React.SetStateAction<Tag | null>>,
-    tags: Tag[]
+    tags: Tag[] | undefined
 }) => {
   return (
     <Listbox value={filterOptions} onChange={setFilterOptions}>
@@ -21,11 +21,11 @@ const FilterMenu = ({filterOptions, setFilterOptions, tags}: {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <Listbox.Options className="absolute mt-4 max-h-60 overflow-auto -left-12 w-40 px-1 rounded-sm bg-white py-2 z-[150] shadow-2xl border">
+        <Listbox.Options className="absolute mt-4 max-h-60 right-0 w-40 px-1 rounded-sm bg-white py-2 z-[150] shadow-2xl border">
           <Listbox.Option value={null}
             className={({ active }) =>
             `cursor-default select-none py-2 pl-2 flex w-full items-center ${
-            active ? 'bg-slate-50 text-blue-900' : 'text-gray-900'
+            active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
                 }`
             }>
                 {({ selected }) => (
@@ -46,12 +46,13 @@ const FilterMenu = ({filterOptions, setFilterOptions, tags}: {
               )}
 
             </Listbox.Option>
-          {tags.map((display, displayIdx) => (
+          {tags && 
+          tags.map((display, displayIdx) => (
             <Listbox.Option
               key={displayIdx}
               className={({ active }) =>
                 `cursor-default select-none py-2 pl-2 flex w-full items-center ${
-                  active ? 'bg-slate-50 text-blue-900' : 'text-gray-900'
+                  active ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
                 }`
               }
               value={display}
