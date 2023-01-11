@@ -24,7 +24,7 @@ const TagNameCombobox = React.forwardRef<HTMLInputElement, (ControllerRenderProp
                     onFocus={(e) => !open && e.target.nextSibling.click()}
                     placeholder="Confirm with Tab or Enter" />
                     <Combobox.Button className="hidden"/>
-                    {props.tagColor ? <div className='content-none w-8 h-8 p-3 ml-4 rounded-full' style={{backgroundColor: props.tagColor}}></div> : <></>}
+                    {props.tagColor && props.hidden ? <div className='content-none w-8 h-8 p-3 ml-4 rounded-full' style={{backgroundColor: props.tagColor}}></div> : <></>}
                 </div>
                 <Combobox.Options as="div" className="w-full mt-2 rounded bg-white flex-col divide-y-2 p-2">
                     {query.length > 0 && (
