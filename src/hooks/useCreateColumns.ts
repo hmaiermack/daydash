@@ -15,10 +15,10 @@ function useCreateColumns (
             } | null;
         })[];
         tags: Tag[];
-    } | undefined
+    } | undefined,
+    days: Date[]
 
 ) {
-    console.log("useCreateColumns")
     const { state: CalendarState } = useContext(CalendarContext)
 
 
@@ -30,10 +30,6 @@ function useCreateColumns (
     })[][] = []
 
     const [data, setData] = useState(() => [...cols])
-    const days: Date[] = eachDayOfInterval({
-      start: CalendarState.dateRangeStart,
-      end: CalendarState.dateRangeEnd
-    })
 
     let hours: Date[] = []
 
@@ -65,9 +61,9 @@ function useCreateColumns (
           //eslint-disable-next-line
     }, [taskData, CalendarState.display])
 
-    const lastHour = hours[hours.length - 1]
+    console.log(data)
 
-    return {columns: data, hours, lastHour, days}
+    return {columns: data}
 
 }
 

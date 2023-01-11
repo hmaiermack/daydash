@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect, useMemo, useState } from 'react'
 import { trpc } from '../../utils/trpc'
 import Day from './Day'
 import CreateModal from './CreateModal'
@@ -10,6 +10,7 @@ import CalendarToolbar from './toolbar/CalendarToolbar'
 import DaysBanner from './DaysBanner'
 import TimeColumn from './TimeColumn'
 import useCreateColumns from '../../hooks/useCreateColumns'
+import { addHours, eachDayOfInterval, eachHourOfInterval, format } from 'date-fns'
 
 //TODO: break this up into smaller components
 //TODO: render a skeleton calendar while loading to prevent flicker
@@ -19,9 +20,31 @@ const CalendarContainer = () => {
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
     const { state: EditModalState } = React.useContext(EditModalContext)
     const [selectedDisplay, setSelectedDisplay] = React.useState(CalendarState.display)
+    const [hours, setHours] = useState<Date[]>([])
+    const [placeholders, setPlaceholders] = useState<number[]>([9, 17])
 
     const { isLoading, isError, data: taskData, error } = trpc.useQuery(["tasks.tasks", {startDate: CalendarState.dateRangeStart, endDate: CalendarState.dateRangeEnd}]);  
-    const {columns, hours, lastHour, days} = useCreateColumns(taskData)
+    
+    const days: Date[] = eachDayOfInterval({
+        start: CalendarState.dateRangeStart,
+        end: CalendarState.dateRangeEnd
+      })
+
+
+    useMemo(() => {
+        if (taskData?.timeRangeStart && taskData.timeRangeEnd) {
+            setHours(eachHourOfInterval({start: addHours(CalendarState.dateRangeStart, taskData?.timeRangeStart), end: addHours(CalendarState.dateRangeStart, taskData?.timeRangeEnd - 1)}))
+            setPlaceholders([taskData.timeRangeStart, taskData.timeRangeEnd])
+        }
+    }, [taskData?.timeRangeStart, taskData?.timeRangeEnd])
+
+    console.log(hours)
+    console.log(placeholders)
+
+    const lastHour = hours[hours.length - 1]
+
+  
+    const {columns} = useCreateColumns(taskData, days)
     const [template, setTemplate] = useState("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
 
     useLayoutEffect(() => {
@@ -50,13 +73,18 @@ const CalendarContainer = () => {
                             <DaysBanner day={day} key={day.toISOString()} setSelectedDisplay={setSelectedDisplay} />
                         )
                     })}
-                    {taskData &&
-                        <TimeColumn hours={hours} lastHour={lastHour} timeRangeEnd={taskData.timeRangeEnd} timeRangeStart={taskData.timeRangeStart} />    
+                    {
+                        <TimeColumn hours={hours} lastHour={lastHour} timeRangeEnd={taskData?.timeRangeEnd} timeRangeStart={taskData?.timeRangeStart} />    
                     }
-                    {   taskData &&
+                    {   taskData ?
                         columns.map((col, idx) => {
                             return (
                                 <Day tasks={col} day={days[idx]} colIdx={idx} timeRangeStart={taskData?.timeRangeStart} timeRangeEnd={taskData?.timeRangeEnd} key={idx} />
+                                )
+                        }) :
+                        columns.map((_, idx) => {
+                            return (
+                                <Day tasks={[]} day={days[idx]} colIdx={idx} key={idx} timeRangeStart={placeholders[0] ? placeholders[0] : 9} timeRangeEnd={placeholders[1] ? placeholders[1] : 17}/>
                                 )
                         })
                     }
