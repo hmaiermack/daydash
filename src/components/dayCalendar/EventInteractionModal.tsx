@@ -3,6 +3,7 @@ import { addHours, differenceInMinutes, format, startOfDay, startOfHour } from '
 import React, { useContext } from 'react'
 import { CalendarContext } from '../../context/CalendarContext';
 import { EditModalContext } from '../../context/EditModalContext';
+import useWindowSize from '../../hooks/useWindowSize';
 import determineTextColor from '../../utils/determineTextColor';
 import { trpc } from '../../utils/trpc';
 
@@ -20,6 +21,7 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
     isModalOpen: boolean;
     setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
+    const { width: screenWidth } = useWindowSize()
     const [hover, setHover] = React.useState(false)
     const [hovered, setHovered] = React.useState<1 | 2 | 3 | null>(null)
     const { dispatch } = useContext(EditModalContext)
@@ -103,10 +105,10 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
 
     //fix magic nums: 652-> height of day, 700-> height of calendar container, 75-> anything below 75% of the calendar container anchor modal to the bottom
     const bottom = topPercentage >= 0.75 ? 0 : (652 - (700 * topPercentage) - eventHeight)
-    
+    console.log(screenWidth)
     return (
              <>
-                <div className={`absolute flex-col rounded drop-shadow-2xl bg-white z-[100]`} style={{width, top: topOffset < 75 ? `${topOffset}%` : '', bottom: topOffset >= 75 ? `${bottom}px` : '', left: leftOffset}}>
+{ screenWidth &&                <><div className={`absolute sm flex-col rounded drop-shadow-2xl bg-white z-[100]`} style={{width, top: topOffset < 75 ? `${topOffset}%` : '', bottom: topOffset >= 75 ? `${bottom}px` : '', left: screenWidth < 640 ? undefined : leftOffset, right: screenWidth < 640 ? 0 : undefined}}>
                     <div className='flex flex-grow justify-end'>
                         <div className="flex flex-row p-2 gap-2" onMouseLeave={handleHover} onMouseEnter={handleHover}>
                             <div className='relative w-8 h-8 rounded-full flex justify-center items-center hover:cursor-pointer hover:bg-blue-300' onMouseEnter={() => handleHovered(1)} onMouseLeave={() => handleHovered(null)}>
@@ -156,7 +158,8 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
                 </div> 
                 <div className='fixed inset-0 z-[99] w-full h-full' onClick={() => setIsModalOpen(!isModalOpen)}>
                 </div>
-            </>
+                </>
+}            </>
     )
     
 }
