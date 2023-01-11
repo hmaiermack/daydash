@@ -48,7 +48,7 @@ const Day = ({tasks, timeRangeStart, timeRangeEnd, colIdx, day}: {
         <div className={`relative grid grid-cols-1 grid-rows-[${timeRangeEnd - timeRangeStart}] ${state.today && state.display != "one" && day && isSameDay(day, state.today) ? 'bg-slate-50' : ''} border-l last:border-r`} ref={dayRef}>
         {
                 state.today && day && isSameDay(day, state.today) && currentTimeOffset != null && isBefore(new Date(), addHours(startOfDay(day), timeRangeEnd)) &&
-                <span className={`content-none z-10 h-[1px] absolute bg-red-500`} style={{top: `${currentTimeOffset}%`, width: width + 1}}>
+                <span className={`content-none w-full z-10 h-[1px] absolute bg-red-500`} style={{top: `${currentTimeOffset}%`}}>
                     <div className='h-4 w-4 rounded-full bg-red-500 absolute -left-2 -top-2'/>
                 </span>
             }
