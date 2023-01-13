@@ -35,7 +35,7 @@ function HabitRow({
 
  return (
     <div key={id} className="flex md:w-64">
-        <div className="flex w-full bg-blue-200 p-2 rounded items-center justify-between">
+        <div className="flex w-full bg-white border border-slate-300 p-2 rounded items-center justify-between">
             <div className="flex items-start justify-start max-w-fit overflow-hidden">
                 <span className="whitespace-nowrap ">
                     {name} 
