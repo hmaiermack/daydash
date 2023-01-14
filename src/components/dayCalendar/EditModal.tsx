@@ -1,18 +1,20 @@
-import React, { Fragment, useState, useEffect, useLayoutEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Dialog, Disclosure, Transition } from '@headlessui/react'
-import { Controller, SubmitHandler, useForm, useFormState } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from "zod";
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { TextField } from '@mui/material';
-import { addHours, addMinutes, areIntervalsOverlapping, isAfter, isBefore, startOfDay } from 'date-fns';
+import { addHours, areIntervalsOverlapping, isAfter, isBefore, startOfDay } from 'date-fns';
 import { trpc } from '../../utils/trpc';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import ColorPicker from './ColorPicker';
-import TagNameCombobox from './TagNameCombobox';
+import ColorPicker from '../general/form/ColorPicker';
+import TagNameCombobox from '../general/form/TagNameCombobox';
 import { Tag, Task } from '@prisma/client';
 import { EditModalContext } from '../../context/EditModalContext';
+import FormLabel from '../general/form/FormLabel';
+import FormInput from '../general/form/FormInput';
 
 
 type Inputs = {
@@ -205,9 +207,8 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
                   <div className='mt-4 pt-4 px-4 bg-blue-100 flex flex-col items-center rounded'>
                   <div className="flex flex-col w-full">
                     <div className='w-full mb-4'>
-                      <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="title">Event Name</label>
-                      <input className={`appearance-none block w-full bg-white text-gray-900 border border-gray-500 font-medium ${errors.title ? 'outline-red-500' : 'border-gray-400 focus:outline-none'} rounded-lg py-3 px-3 leading-tight`} {...register("title")} placeholder="Your Event"/>
-                      {errors.title && <span className="text-red-500">{errors.title?.message}</span>}
+                      <FormLabel htmlFor='title'>Event Name</FormLabel>
+                      <FormInput label="title" type="text" error={errors.title}  register={register} placeholder="Your Event"/>
                     </div>
                   <Controller
                     name="startTime"
