@@ -7,6 +7,7 @@ import { CalendarContextProvider } from "../context/CalendarContext";
 import { EditModalProvider } from "../context/EditModalContext";
 import HabitContainer from "../components/habits/HabitContainer";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 
 
@@ -25,11 +26,11 @@ const Home: NextPage = () => {
                 <CalendarContainer />
                 <HabitContainer />
               </>
-            ) : (<>
-              <span>you need to sign in</span>
-              <button className="p-4 bg-blue-200" onClick={() => router.push("/api/auth/signin")}>go to sign in</button>
-              <button className="p-4 bg-blue-200" onClick={() => router.push("/register")}>go to sign up</button>
-              </>
+            ) : (<div className="w-screen h-screen flex flex-col justify-center items-center">
+              <span className="text-2xl">
+                Please <Link href="/api/auth/signin" ><a className="underline text-blue-500">sign in</a></Link> or <Link href="/register" ><a className="underline text-blue-500">sign up</a></Link> to continue.
+              </span>
+              </div>
               )}
             </div>
           </EventInteractionModalProvider>
