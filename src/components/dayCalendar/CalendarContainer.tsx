@@ -12,9 +12,6 @@ import TimeColumn from './TimeColumn'
 import useCreateColumns from '../../hooks/useCreateColumns'
 import { addHours, eachDayOfInterval, eachHourOfInterval, format } from 'date-fns'
 
-//TODO: break this up into smaller components
-//TODO: render a skeleton calendar while loading to prevent flicker
-
 const CalendarContainer = () => {
     const {state: CreateModalState } = React.useContext(CreateModalContext)
     const { state: CalendarState, dispatch } = React.useContext(CalendarContext)
@@ -38,13 +35,10 @@ const CalendarContainer = () => {
         }
     }, [taskData?.timeRangeStart, taskData?.timeRangeEnd])
 
-    console.log(hours)
-    console.log(placeholders)
-
     const lastHour = hours[hours.length - 1]
 
   
-    const {columns} = useCreateColumns(taskData, days)
+    const { columns } = useCreateColumns(taskData, days)
     const [template, setTemplate] = useState("80px 1fr 1fr 1fr 1fr 1fr 1fr 1fr")
 
     useLayoutEffect(() => {
