@@ -28,7 +28,7 @@ const Home: NextPage = () => {
               </>
             ) : (<div className="w-screen h-screen flex flex-col justify-center items-center">
               <span className="text-2xl">
-                Please <Link href="/api/auth/signin" ><a className="underline text-blue-500">sign in</a></Link> or <Link href="/register" ><a className="underline text-blue-500">sign up</a></Link> to continue.
+                Please <Link href="/auth/signin" ><a className="underline text-blue-500">sign in</a></Link> or <Link href="/auth/register" ><a className="underline text-blue-500">sign up</a></Link> to continue.
               </span>
               </div>
               )}
