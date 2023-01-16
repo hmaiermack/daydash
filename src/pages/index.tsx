@@ -1,14 +1,12 @@
 import type { NextPage } from "next";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { CreateModalProvider } from "../context/CreateModalContext";
 import { EventInteractionModalProvider } from "../context/EventInteractionModalContext";
 import CalendarContainer from "../components/dayCalendar/CalendarContainer";
 import { CalendarContextProvider } from "../context/CalendarContext";
 import { EditModalProvider } from "../context/EditModalContext";
 import HabitContainer from "../components/habits/HabitContainer";
-import { useRouter } from "next/router";
 import Link from "next/link";
-import { AppErrorBoundary } from "../components/general/AppErrorBoundary";
 
 
 
@@ -16,7 +14,6 @@ import { AppErrorBoundary } from "../components/general/AppErrorBoundary";
 const Home: NextPage = () => {
   const {status} = useSession()
   return (
-    <AppErrorBoundary>
       <CalendarContextProvider>
         <EditModalProvider>
           <CreateModalProvider>
@@ -38,7 +35,6 @@ const Home: NextPage = () => {
           </CreateModalProvider>
           </EditModalProvider>
       </CalendarContextProvider>
-    </AppErrorBoundary>
   );
 };
 
