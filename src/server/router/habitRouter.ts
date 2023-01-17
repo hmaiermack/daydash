@@ -1,6 +1,6 @@
 import { Habit } from "@prisma/client"
 import { TRPCError } from "@trpc/server"
-import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday, isBefore, isAfter, getDay } from "date-fns"
+import { eachDayOfInterval, subDays, subMonths, format, parseISO, isSameDay, startOfToday, endOfToday, isBefore, isAfter, getDay, isToday } from "date-fns"
 import { Day } from "react-activity-calendar"
 import { z } from "zod"
 import { GraphDay } from "../../../types/types"
@@ -54,7 +54,6 @@ export const habitRouter = createRouter()
     })
     .query("habit-graph", {
         async resolve({ ctx }) {
-            console.log(ctx.session)
             const habits = await ctx.prisma.habit.findMany({
                 where: {
                     userId: ctx.session?.user.id
@@ -82,6 +81,7 @@ export const habitRouter = createRouter()
 
 
             const firstHabitDate = habits[0]!.createdAt
+            if(isToday(firstHabitDate)) return {message: "As you complete habits, your graph will fill in."}
 
             const intervalStart = subMonths(Date.now(), 6)
             const firstHabitSixMonthsOld = isBefore(firstHabitDate, intervalStart)
@@ -104,6 +104,7 @@ export const habitRouter = createRouter()
             let totalHabits: number = 0
             let totalCompletedHabits: number = 0
             let totalAdherencePercentage: number = 0
+            let completedToday: number = 0
 
     
             intervalData.forEach(item => {
@@ -129,6 +130,7 @@ export const habitRouter = createRouter()
                 //to help determine total adherence of all items we assign completedCount and totalHabits externally of function scope
                 completedHabits.forEach(completedHabit => {
                     if(isSameDay(item.date, completedHabit.dateCompleted)) completedCount += 1
+                    if(isToday(completedHabit.dateCompleted)) completedToday += 1
                 })
                 totalHabits += item.count
                 totalCompletedHabits += completedCount
@@ -158,7 +160,7 @@ export const habitRouter = createRouter()
             if(isNaN(totalAdherencePercentage)) {
                 totalAdherencePercentage = 0;
             }
-            const message = firstHabitSixMonthsOld ? `You've completed ${totalCompletedHabits} of ${totalHabits} possible habits in the last 6 months, adhering ${totalAdherencePercentage}% of the time.` : `You've completed ${totalCompletedHabits} of ${totalHabits} habits since you started tracking your habits on ${format(firstHabitDate, "MM/dd/yy")}.`
+            const message = firstHabitSixMonthsOld ? `You've completed ${totalCompletedHabits} of ${totalHabits} possible habits in the last 6 months, adhering ${totalAdherencePercentage}% of the time. You have completed ${completedToday} of ${habits.length} today.` : `You've completed ${totalCompletedHabits} of ${totalHabits} habits since you started tracking your habits on ${format(firstHabitDate, "MM/dd/yy")}. You have completed ${completedToday} of ${habits.length} today.`
             return {formattedData, message}
     
         }
@@ -261,7 +263,6 @@ export const habitRouter = createRouter()
             isComplete: z.boolean()
         }),
         async resolve({input, ctx }) {
-            console.log("in toggle", input.isComplete)
             const habit = await ctx.prisma.habit.findUnique({
                 where: {
                     id: input.habitId
