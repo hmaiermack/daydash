@@ -7,6 +7,7 @@ import { CalendarContextProvider } from "../context/CalendarContext";
 import { EditModalProvider } from "../context/EditModalContext";
 import HabitContainer from "../components/habits/HabitContainer";
 import Link from "next/link";
+import { AppErrorBoundary } from "../components/general/AppErrorBoundary";
 
 
 
@@ -21,7 +22,9 @@ const Home: NextPage = () => {
               <div>
               {status === "authenticated" ? (
                 <>
+                <AppErrorBoundary>
                   <CalendarContainer />
+                </AppErrorBoundary>
                   <HabitContainer />
                 </>
               ) : (<div className="w-screen h-screen flex flex-col justify-center items-center">
