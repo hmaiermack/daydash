@@ -1,4 +1,3 @@
-import { Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import React from "react";
 import { toast } from "react-hot-toast";
