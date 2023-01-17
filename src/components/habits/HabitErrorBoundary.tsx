@@ -28,7 +28,7 @@ export const HabitErrorBoundary = ({ children }: {children: React.ReactNode}) =>
     return (
       <React.Suspense
         fallback={
-          <div className="flex items-center justify-center w-screen h-screen">
+          <div className="flex items-center justify-center w-full h-full">
             <Spinner size="xl" />
           </div>
         }
