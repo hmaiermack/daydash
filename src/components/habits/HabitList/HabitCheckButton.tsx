@@ -1,6 +1,7 @@
 import { Transition } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import React from "react";
+import { toast } from "react-hot-toast";
 import { trpc } from "../../../utils/trpc";
 
 interface IHabitCheckButtonProps {
@@ -10,14 +11,22 @@ interface IHabitCheckButtonProps {
 
 function HabitCheckButton({isComplete, habitId}: IHabitCheckButtonProps) {
     const toggleHabit = trpc.useMutation(['habits.toggle-habit-completion'], {
+        onError: (err) => {
+            toast.error("Something went wrong. Please try again later.")
+        },
         onSuccess: () => {
             utils.invalidateQueries(['habits.habits'])
-        }
+            toast.success('Habit updated!')
+        },
+        //@ts-ignore
+        useErrorBoundary: (err) => err.data?.httpStatus >= 500,
     })
+
     const utils = trpc.useContext()
 
     const handleClick = () => {
         toggleHabit.mutate({isComplete, habitId})
+        toggleHabit.isLoading && toast.loading('Loading...')
     }
 
     return (

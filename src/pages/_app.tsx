@@ -6,6 +6,7 @@ import superjson from "superjson";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
 import { AppErrorBoundary } from "../components/general/AppErrorBoundary";
+import { Toaster } from "react-hot-toast";
 
 
 
@@ -17,6 +18,10 @@ const MyApp: AppType = ({
 
   return (
     <AppErrorBoundary>
+      <Toaster
+        position="bottom-right"
+        reverseOrder={true}
+      />
       <SessionProvider session={session}>
           <Component {...pageProps} />
       </SessionProvider>
