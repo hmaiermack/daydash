@@ -26,14 +26,12 @@ const signin = () => {
 
     const router = useRouter()
     const onSubmit = async (data: Inputs) => {
-        console.log(data)
         setErr(undefined)
         signIn('credentials', {
             redirect: false,
             email: data.email,
             password: data.password,
             }).then((res) => {
-                console.log(res)
                 if (res?.ok) {
                     router.push('/')
                 } else {

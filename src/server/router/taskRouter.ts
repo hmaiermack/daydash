@@ -77,7 +77,6 @@ export const taskRouter = createRouter()
         async resolve ({input, ctx}) {
 
             if (input.tag && input.tag.colorHexValue && input.tag.name && ctx?.session?.user.id) {
-                console.log("inside new task with tag")
                 const tags = await ctx.prisma.tag.findMany({
                     where: {
                         userId: ctx.session?.user.id

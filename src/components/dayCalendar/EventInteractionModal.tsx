@@ -55,7 +55,6 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
     }
 
     const handleEdit = () => {
-        console.log(taskTitle)
         tagColorValue && tagName ?
         dispatch({type: 'openModal', payload: {
             eventId: taskId,
@@ -105,7 +104,6 @@ export const EventInteractionModal = ({taskId, taskTitle, taskStart, taskEnd, ta
 
     //fix magic nums: 652-> height of day, 700-> height of calendar container, 75-> anything below 75% of the calendar container anchor modal to the bottom
     const bottom = topPercentage >= 0.75 ? 0 : (652 - (700 * topPercentage) - eventHeight)
-    console.log(screenWidth)
     return (
              <>
 { screenWidth &&                <><div className={`absolute sm flex-col rounded drop-shadow-2xl bg-white z-[100]`} style={{width, top: topOffset < 75 ? `${topOffset}%` : '', bottom: topOffset >= 75 ? `${bottom}px` : '', left: screenWidth < 640 ? undefined : leftOffset, right: screenWidth < 640 ? 0 : undefined}}>

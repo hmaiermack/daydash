@@ -37,7 +37,6 @@ const register = () => {
         })
 
         if (response.ok) {
-            console.log('success')
             signIn('credentials', {
                 redirect: false,
                 email: data.email,

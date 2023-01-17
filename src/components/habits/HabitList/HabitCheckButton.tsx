@@ -17,7 +17,6 @@ function HabitCheckButton({isComplete, habitId}: IHabitCheckButtonProps) {
     const utils = trpc.useContext()
 
     const handleClick = () => {
-        console.log(habitId)
         toggleHabit.mutate({isComplete, habitId})
     }
 

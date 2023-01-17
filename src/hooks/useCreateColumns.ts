@@ -61,7 +61,6 @@ function useCreateColumns (
           //eslint-disable-next-line
     }, [taskData, CalendarState.display])
 
-    console.log(data)
 
     return {columns: data}
 

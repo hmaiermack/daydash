@@ -130,7 +130,6 @@ const CalendarToolbar = ({selectedDisplay, setSelectedDisplay, tags}: {
     }, [selectedDisplay])
 
     useEffect(() => {
-        console.log(filterOptions)
         filterOptions ?
         dispatch({type: 'changeFilter', payload: {
             filterByTagName: filterOptions?.name,

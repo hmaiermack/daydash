@@ -55,7 +55,6 @@ function HabitList() {
         },
         resolver: zodResolver(schema),
     })
-    console.log(errors)
     const utils = trpc.useContext()
     const { data: habitData } = trpc.useQuery(['habits.habits'])
     const handleClose = () => {
@@ -71,7 +70,6 @@ function HabitList() {
 
 
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
-        console.log("submit handler", data)
         newHabit.mutateAsync({
             name: data.habitName,
             habitDays: [data.sunday, data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday]

@@ -51,7 +51,6 @@ export const Event = ({taskId, taskTitle, taskStart, taskEnd, tagId, tagColorVal
     }
 
     useLayoutEffect(() => {
-        console.log(state.filterByTagName)
         if (state.filterByTagName != undefined && state.filterByTagName != tagName) {
             setIsHidden(true)
         } else {
