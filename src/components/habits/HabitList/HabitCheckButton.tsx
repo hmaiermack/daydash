@@ -14,8 +14,8 @@ function HabitCheckButton({isComplete, habitId}: IHabitCheckButtonProps) {
             toast.error("Something went wrong. Please try again later.")
         },
         onSuccess: () => {
+            toast.success(isComplete ? 'Habit unchecked!' : 'Habit checked!')
             utils.invalidateQueries(['habits.habits'])
-            toast.success('Habit updated!')
         },
         //@ts-ignore
         useErrorBoundary: (err) => err.data?.httpStatus >= 500,

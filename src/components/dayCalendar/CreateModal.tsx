@@ -15,6 +15,7 @@ import { CreateModalContext } from '../../context/CreateModalContext';
 import { Tag, Task } from '@prisma/client';
 import FormLabel from '../general/form/FormLabel';
 import FormInput from '../general/form/FormInput';
+import { toast } from 'react-hot-toast';
 
 
 type Inputs = {
@@ -125,7 +126,11 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
 
     const utils = trpc.useContext()
     const newTask = trpc.useMutation("tasks.new-task", {
+        onError: (err) => {
+          toast.error("Something went wrong. Please try again later.")
+        },
         onSuccess(){
+            toast.success("Event created!")
             utils.invalidateQueries(['tasks.tasks'])
             dispatch({type: 'closeModal', payload: {
               isModalOpen: false,
@@ -141,6 +146,7 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
       }})
     }
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
+      
       //if tag name and tag color are both present, create task with tag
       data.tagName && data.tagColor
       ? await newTask.mutateAsync({
@@ -157,6 +163,8 @@ const CreateModal = ({timeRangeEnd, timeRangeStart, selectedTime, tags, tasks}: 
         timeStart: data.startTime,
         timeEnd: data.endTime,
       })
+
+      newTask.isLoading && toast.loading("Creating event...")
     }  
 
   return (

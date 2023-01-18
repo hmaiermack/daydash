@@ -2,6 +2,7 @@ import { Switch } from "@headlessui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { Fragment, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import { z } from "zod";
 import { trpc } from "../../utils/trpc";
 import { HabitErrorBoundary } from "./HabitErrorBoundary";
@@ -66,8 +67,12 @@ function HabitList() {
         reset()
     }
     const newHabit = trpc.useMutation('habits.new-habit', {
+        onError: (err) => {
+            toast.error("Something went wrong. Please try again later.")
+        },
         onSuccess() {
             utils.invalidateQueries(['habits.habits'])
+            toast.success('Habit created!')
             handleClose()
         },
     })
@@ -78,6 +83,7 @@ function HabitList() {
             name: data.habitName,
             habitDays: [data.sunday, data.monday, data.tuesday, data.wednesday, data.thursday, data.friday, data.saturday]
         })
+        newHabit.isLoading && toast.loading('Creating habit...')
     }
 
 

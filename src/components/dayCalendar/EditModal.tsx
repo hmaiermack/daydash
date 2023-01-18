@@ -15,6 +15,7 @@ import { Tag, Task } from '@prisma/client';
 import { EditModalContext } from '../../context/EditModalContext';
 import FormLabel from '../general/form/FormLabel';
 import FormInput from '../general/form/FormInput';
+import { toast } from 'react-hot-toast';
 
 
 type Inputs = {
@@ -125,8 +126,12 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
 
     const utils = trpc.useContext()
     const editTask = trpc.useMutation("tasks.update-task", {
+        onError: (err) => {
+          toast.error("Something went wrong. Please try again later.")
+        },
         onSuccess(){
             utils.invalidateQueries(['tasks.tasks'])
+            toast.success("Event updated successfully!")
             dispatch({type: 'closeModal', payload: {
                 isEditModalOpen: false,
                 startTime: undefined,
@@ -167,6 +172,8 @@ const EditModal = ({timeRangeEnd, timeRangeStart, tags, tasks}: {timeRangeEnd: n
         timeStart: data.startTime,
         timeEnd: data.endTime,
       })
+
+      editTask.isLoading && toast.loading("Updating event...")
     }  
 
   return (

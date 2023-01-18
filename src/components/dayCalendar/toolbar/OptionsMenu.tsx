@@ -9,6 +9,8 @@ import { CalendarContext } from '../../../context/CalendarContext'
 import { trpc } from '../../../utils/trpc'
 import CLink from '../../general/CLink'
 
+//TODO: Honestly, time range for calendar display should be kept in local storage
+
 type Inputs = {
   start: number,
   end: number,

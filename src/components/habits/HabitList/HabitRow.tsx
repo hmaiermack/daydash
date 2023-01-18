@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import React, { Fragment, useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { trpc } from "../../../utils/trpc";
 import EditHabitModal from "./EditHabitModal";
 import HabitCheckButton from "./HabitCheckButton";
@@ -22,14 +23,19 @@ function HabitRow({
     const utils = trpc.useContext()
 
     const deleteHabit = trpc.useMutation(["habits.delete-habit"], {
+        onError: (err) => {
+            toast.error("Something went wrong. Please try again later.")
+        },
         onSuccess() {
             utils.invalidateQueries(["habits.habits"])
+            toast.success("Habit deleted!")
             setIsOptionsOpen(false)
         },
     })
 
     const handleDelete = () => {
         deleteHabit.mutateAsync({habitId: id})
+        deleteHabit.isLoading && toast.loading("Loading...")
     }
 
 
