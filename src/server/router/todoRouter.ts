@@ -74,3 +74,22 @@ export const taskRouter = createRouter()
                 return updatedTodo
         }
     })
+    .mutation('delete-todo', {
+        input: z.object({
+            id: z.string()
+            }),
+            async resolve({ ctx, input }) {
+                const todo = await ctx.prisma.todo.findUnique({
+                    where: {
+                        id: input.id
+                        }
+                })
+                if (!todo) throw new TRPCError({message: "Todo not found.", code:"NOT_FOUND"})
+                const deletedTodo = await ctx.prisma.todo.delete({
+                    where: {
+                        id: input.id
+                        }
+                })
+                return deletedTodo
+        }
+    })
