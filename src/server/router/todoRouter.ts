@@ -32,3 +32,24 @@ export const taskRouter = createRouter()
             return todos
         }
     })
+    .mutation('createTodo', {
+        input: z.object({
+            title: z.string(),
+        }),
+        async resolve({ ctx, input }) {
+            const todo = await ctx.prisma.todo.create({
+                data: {
+                    user: {
+                        connect: {
+                            id: ctx.session?.user.id
+                        }
+                    },
+                    title: input.title,
+                    isComplete: false,
+                    createdAt: new Date()
+                }
+            })
+
+            return todo
+        }
+    })
