@@ -32,7 +32,7 @@ export const taskRouter = createRouter()
             return todos
         }
     })
-    .mutation('createTodo', {
+    .mutation('create-todo', {
         input: z.object({
             title: z.string(),
         }),
@@ -49,7 +49,28 @@ export const taskRouter = createRouter()
                     createdAt: new Date()
                 }
             })
-
             return todo
+        }
+    })
+    .mutation('toggle-todo', {
+        input: z.object({
+            id: z.string()
+            }),
+            async resolve({ ctx, input }) {
+                const todo = await ctx.prisma.todo.findUnique({
+                    where: {
+                        id: input.id
+                        }
+                })
+                if (!todo) throw new TRPCError({message: "Todo not found.", code:"NOT_FOUND"})
+                const updatedTodo = await ctx.prisma.todo.update({
+                    where: {
+                        id: input.id
+                        },
+                        data: {
+                        isComplete: !todo.isComplete
+                        }
+                })
+                return updatedTodo
         }
     })
