@@ -53,6 +53,7 @@ model User {
     habits Habit[]
     completedHabits CompletedHabit[]
     tags Tag[]
+    todos Todo[]
 }
 
 model VerificationToken {
@@ -133,4 +134,15 @@ model CompletedHabit {
 
   @@index([dateCompleted, habitId])
   @@map("completedHabits")
+}
+
+model Todo {
+  id String @id @default(cuid())
+  createdAt DateTime @default(now())
+  title String
+  isComplete Boolean
+
+  user User @relation(fields: [userId], references: [id])
+  userId String
+
 }
