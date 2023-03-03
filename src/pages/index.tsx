@@ -8,6 +8,7 @@ import { EditModalProvider } from "../context/EditModalContext";
 import HabitContainer from "../components/habits/HabitContainer";
 import Link from "next/link";
 import { AppErrorBoundary } from "../components/general/AppErrorBoundary";
+import TodoContainer from "../components/todos/TodoContainer";
 
 
 
@@ -23,6 +24,7 @@ const Home: NextPage = () => {
               {status === "authenticated" ? (
                 <>
                 <AppErrorBoundary>
+                <TodoContainer />
                   <CalendarContainer />
                 </AppErrorBoundary>
                   <HabitContainer />

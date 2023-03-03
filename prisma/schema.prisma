@@ -139,7 +139,7 @@ model CompletedHabit {
 model Todo {
   id String @id @default(cuid())
   createdAt DateTime @default(now())
-  title String
+  name String
   isComplete Boolean
 
   user User @relation(fields: [userId], references: [id])

@@ -95,7 +95,7 @@ return (
             <div>
             <h2 className="font-semibold text-lg self-start text-gray-600">Your Habits</h2>
             {habitData && 
-                <div className="flex flex-col gap-4 md:flex-wrap max-h-full overflow-auto">
+                <div className="flex flex-col gap-4 md:flex-wrap max-h-[300px] overflow-auto">
                     {habitData.map((habit) => ( <HabitRow id={habit.id} key={habit.id} name={habit.name} isCompleted={habit.isCompleted} remindTime={null} habitDays={habit.habitDays} /> ))}
                 </div>
             }
