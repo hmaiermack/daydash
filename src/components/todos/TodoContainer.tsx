@@ -85,7 +85,7 @@ const TodoContainer = () => {
             {/* This should be a generic row container */}
             <div className="flex flex-col gap-4 md:flex-wrap max-h-[300px] overflow-auto">
               {data && data.map((item) => (
-                <ItemRow item={item} key={item.id} deleteFn={() => handleDelete(item.id)} toggleFn={() => handleToggle(item.id)}/>
+                <ItemRow item={item} key={item.id} deleteFn={() => handleDelete(item.id)} toggleFn={() => handleToggle(item.id)} className='bg-red-500'/>
               ))}
             </div>
 

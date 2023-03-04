@@ -70,7 +70,8 @@ export const todoRouter = createRouter()
                         id: input.id
                         },
                         data: {
-                        isComplete: !todo.isComplete
+                        completedAt: todo.isComplete ? null : new Date(),
+                        isComplete: !todo.isComplete,
                         }
                 })
                 return updatedTodo

@@ -22,36 +22,22 @@ type ItemWithBaseProperties = {
 
 function ItemRow<T extends ItemWithBaseProperties>({ item, deleteFn, toggleFn }: { item: T, deleteFn: any, toggleFn: any } & React.ComponentPropsWithoutRef<"div">) {
     const [isOptionsOpen, setIsOptionsOpen] = React.useState(false)
-    const [isEditOpen, setIsEditOpen] = useState(false)
-
-    const utils = trpc.useContext()
-
-    const deleteHabit = trpc.useMutation(["habits.delete-habit"], {
-        //@ts-ignore
-        onError: (err) => {
-            toast.error("Something went wrong. Please try again later.")
-        },
-        onSuccess() {
-            utils.invalidateQueries(["habits.habits"])
-            toast.success("Habit deleted!")
-            setIsOptionsOpen(false)
-        },
-    })
-
+    const [isEditOpen, setIsEditOpen] = React.useState(false)
+    console.log(item.isComplete)
 
  return (
     <div className="flex md:w-64">
         <div className="flex w-full bg-white border border-slate-300 p-2 rounded items-center justify-between">
             <div className="flex items-start justify-start max-w-fit overflow-hidden">
-                <span className="whitespace-nowrap ">
+                <span className={item.isComplete ? 'text-gray-300 line-through whitespace-nowrap' : 'whitespace-nowrap'}>
                     {item.name} 
-                    {item.remindTime &&  <span className="text-gray-500 text-sm ml-2">{item.remindTime}</span>}
+                    {item.remindTime &&  <span className={item.isComplete ? 'text-gray-200 line-through text-sm ml-2' : 'text-gray-500 text-sm ml-2'}>{item.remindTime}</span>}
                 </span>
             </div>
             <div className="flex items-center">
                     {!isOptionsOpen ? (
                         <div className="flex items-center">
-                            <ItemRowCheckButton isComplete={item.isCompleted} id={item.id} toggleFn={toggleFn} />
+                            <ItemRowCheckButton isComplete={item.isComplete} id={item.id} toggleFn={toggleFn} />
                             <button onClick={() => setIsOptionsOpen(true)}>
                                 <EllipsisVerticalIcon className="w-5 h-5 hover:cursor-pointer" /> 
                             </button>
