@@ -19,7 +19,7 @@ export const todoRouter = createRouter()
                 where: {
                     userId: ctx.session?.user.id,
                     isComplete: true,
-                    createdAt: {
+                    completedAt: {
                         lte: today
                     },
                 }
